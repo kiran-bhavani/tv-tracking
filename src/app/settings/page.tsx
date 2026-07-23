@@ -18,6 +18,7 @@ import {
 import { getToken } from 'firebase/messaging';
 import { doc, deleteDoc, setDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 // ── Toast ─────────────────────────────────────────────────────────────────────
 function Toast({ message, type, onDismiss }: { message: string; type: 'success' | 'error'; onDismiss: () => void }) {
@@ -195,6 +196,7 @@ function PasswordModal({ error, deleting, onConfirm, onCancel }: {
 export default function SettingsPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const { isInstallable, promptInstall } = usePWAInstall();
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const showToast = useCallback((message: string, type: 'success' | 'error') => setToast({ message, type }), []);
@@ -376,8 +378,8 @@ export default function SettingsPage() {
               icon={<Smartphone className="w-4 h-4 text-blue-400" />}
               iconBg="bg-blue-500/10"
               label="Install App"
-              subtitle="Add to home screen for native experience"
-              onClick={() => {}}
+              subtitle={isInstallable ? "Add to home screen for native experience" : "Tap Share > Add to Home Screen on iOS"}
+              onClick={promptInstall}
               rightSlot={<ExternalLink className="w-4 h-4 text-muted-foreground/50" />}
             />
           </Card>
