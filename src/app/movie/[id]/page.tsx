@@ -35,15 +35,6 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
   let finalOverview = movie.overview;
   let imdbRating = null;
 
-  if (!finalOverview || finalOverview.length < 10) {
-    if (movie.translations?.translations) {
-      const originalLangTranslation = movie.translations.translations.find((t: any) => t.iso_639_1 === movie.original_language);
-      if (originalLangTranslation?.data?.overview) {
-        finalOverview = originalLangTranslation.data.overview;
-      }
-    }
-  }
-
   // Fallback 1: Trakt.tv
   if (!finalOverview || finalOverview.length < 10) {
     const traktData = await fetchTraktDetails(movie.id, 'movie');
