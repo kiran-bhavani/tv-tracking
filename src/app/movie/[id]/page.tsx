@@ -8,6 +8,7 @@ import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import MediaGallery from '@/components/MediaGallery';
+import WatchProviders from '@/components/WatchProviders';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 
@@ -115,12 +116,14 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       {/* Progress */}
       <ShowProgress showId={movie.id} totalEpisodes={1} />
 
-      {/* Watch Options (Just a dummy button for now) */}
-      <div className="px-4 mt-6">
-        <button className="w-full bg-accent/10 text-accent font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-accent/20 transition-colors">
-          <Play className="w-5 h-5 fill-current" />
-          Where to Watch
-        </button>
+      {/* Actions */}
+      <div className="px-4 mt-6 flex gap-3 mb-6">
+        <SaveToListButton showId={movie.id} />
+      </div>
+
+      {/* Where to Watch */}
+      <div className="px-4">
+        <WatchProviders providersData={movie["watch/providers"]} countryCode="US" />
       </div>
 
       {/* Overview */}

@@ -11,6 +11,7 @@ import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import MediaGallery from '@/components/MediaGallery';
+import WatchProviders from '@/components/WatchProviders';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -117,6 +118,9 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Progress */}
       <ShowProgress showId={show.id} totalEpisodes={show.number_of_episodes || 0} />
+
+      {/* Where to Watch */}
+      <WatchProviders providersData={show["watch/providers"]} countryCode="US" />
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={show.original_language} type="show" title={show.name} />
