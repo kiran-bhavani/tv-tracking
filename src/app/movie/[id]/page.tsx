@@ -123,7 +123,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       </div>
 
       {/* Overview */}
-      <OverviewText initialText={finalOverview} language={movie.original_language} />
+      <OverviewText initialText={finalOverview} language={movie.original_language} type="movie" title={movie.title} />
 
       {/* Cast (Horizontal Scroll) */}
       {movie.credits?.cast?.length > 0 && (

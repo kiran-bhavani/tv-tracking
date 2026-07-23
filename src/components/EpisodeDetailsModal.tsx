@@ -11,6 +11,8 @@ import { logActivity } from '@/lib/activity';
 import EpisodeComments from './EpisodeComments';
 import { fetchOmdbEpisodeDetails, OmdbEpisodeData } from '@/lib/omdb';
 import { fetchTraktEpisodeAction } from '@/app/actions/trakt';
+import { fetchTvmazeEpisodeAction } from '@/app/actions/tvmaze';
+import OverviewText from './OverviewText';
 
 interface EpisodeDetailsModalProps {
   showId: number;
@@ -54,7 +56,14 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
           return;
         }
         
-        // If Trakt fails, try OMDb
+        // If Trakt fails, try TVmaze
+        const tvmaze = await fetchTvmazeEpisodeAction(showName, seasonNumber, episode.episode_number);
+        if (isMounted && tvmaze && tvmaze.overview) {
+          setOmdbData({ overview: tvmaze.overview, imdbRating: null });
+          return;
+        }
+
+        // If TVmaze fails, try OMDb
         const omdb = await fetchOmdbEpisodeDetails(showName, seasonNumber, episode.episode_number);
         if (isMounted && omdb) {
           setOmdbData(omdb);
@@ -245,11 +254,15 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
               </div>
             )}
 
-            <div>
-              <h3 className="font-bold text-foreground mb-3 text-xl">Overview</h3>
-              <p className="text-muted-foreground text-sm leading-relaxed sm:text-base">
-                {episode.overview || omdbData?.overview || "No overview available for this episode."}
-              </p>
+            <div className="-mx-4 -mt-8">
+              <OverviewText 
+                initialText={omdbData?.overview || episode.overview || ""} 
+                language="en" 
+                type="episode" 
+                title={showName} 
+                season={seasonNumber} 
+                episode={episode.episode_number} 
+              />
             </div>
 
             {episode.guest_stars && episode.guest_stars.length > 0 && (

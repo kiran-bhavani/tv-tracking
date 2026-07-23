@@ -12,6 +12,7 @@ import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
+import { fetchTvmazeShow } from '@/lib/tvmaze';
 
 export default async function ShowDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,7 +36,15 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
     }
   }
 
-  // Fallback 2: OMDb (last resort)
+  // Fallback 2: TVmaze
+  if (!finalOverview || finalOverview.length < 10) {
+    const tvmazeData = await fetchTvmazeShow(show.name);
+    if (tvmazeData && tvmazeData.summary) {
+      finalOverview = tvmazeData.summary.replace(/<[^>]*>?/gm, ''); // strip HTML
+    }
+  }
+
+  // Fallback 3: OMDb (last resort)
   if (!finalOverview || finalOverview.length < 10) {
     const omdbData = await fetchOmdbDetails(show.name, 'tv');
     if (omdbData) {
@@ -109,7 +118,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
       <ShowProgress showId={show.id} totalEpisodes={show.number_of_episodes || 0} />
 
       {/* Overview */}
-      <OverviewText initialText={finalOverview} language={show.original_language} />
+      <OverviewText initialText={finalOverview} language={show.original_language} type="show" title={show.name} />
 
       {/* Cast (Horizontal Scroll) */}
       {show.credits?.cast?.length > 0 && (
