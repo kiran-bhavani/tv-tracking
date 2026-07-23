@@ -10,6 +10,7 @@ import { useStore } from '@/store/useStore';
 import { logActivity } from '@/lib/activity';
 import EpisodeComments from './EpisodeComments';
 import { fetchOmdbEpisodeDetails, OmdbEpisodeData } from '@/lib/omdb';
+import { fetchTraktEpisodeAction } from '@/app/actions/trakt';
 
 interface EpisodeDetailsModalProps {
   showId: number;
@@ -39,23 +40,34 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
   const showEpisodes = (watchedEpisodes[showId] || []).filter(e => typeof e === 'object' && e !== null) as any[];
   const isWatched = showEpisodes.some(e => e.id === episode?.id);
 
-  // Lazy load OMDb data if TMDB overview is missing
+  // Lazy load Trakt/OMDb data if TMDB overview is missing
   useEffect(() => {
     let isMounted = true;
     setOmdbData(null); // Reset when switching episodes
 
     if (episode && (!episode.overview || episode.overview.length < 10) && showName !== 'Unknown Show') {
-      fetchOmdbEpisodeDetails(showName, seasonNumber, episode.episode_number).then(data => {
-        if (isMounted && data) {
-          setOmdbData(data);
+      const fetchFallbacks = async () => {
+        // Try Trakt first
+        const trakt = await fetchTraktEpisodeAction(showId, seasonNumber, episode.episode_number);
+        if (isMounted && trakt && trakt.overview) {
+          setOmdbData({ overview: trakt.overview, imdbRating: null });
+          return;
         }
-      });
+        
+        // If Trakt fails, try OMDb
+        const omdb = await fetchOmdbEpisodeDetails(showName, seasonNumber, episode.episode_number);
+        if (isMounted && omdb) {
+          setOmdbData(omdb);
+        }
+      };
+      
+      fetchFallbacks();
     }
 
     return () => {
       isMounted = false;
     };
-  }, [episode?.id, showName, seasonNumber, episode?.episode_number, episode?.overview]);
+  }, [episode?.id, showId, showName, seasonNumber, episode?.episode_number, episode?.overview]);
 
   const handleToggle = () => {
     if (!episode) return;

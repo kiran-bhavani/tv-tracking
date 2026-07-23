@@ -8,6 +8,7 @@ import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import { fetchOmdbDetails } from '@/lib/omdb';
+import { fetchTraktDetails } from '@/lib/trakt';
 
 // Quick movie fetch directly in component since it's just one call
 async function getMovieDetails(id: string) {
@@ -43,6 +44,16 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
     }
   }
 
+  // Fallback 1: Trakt.tv
+  if (!finalOverview || finalOverview.length < 10) {
+    const traktData = await fetchTraktDetails(movie.id, 'movie');
+    if (traktData && traktData.overview) {
+      finalOverview = traktData.overview;
+      imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
+    }
+  }
+
+  // Fallback 2: OMDb (last resort)
   if (!finalOverview || finalOverview.length < 10) {
     const omdbData = await fetchOmdbDetails(movie.title, 'movie');
     if (omdbData) {

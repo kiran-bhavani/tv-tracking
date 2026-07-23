@@ -11,6 +11,7 @@ import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import { fetchOmdbDetails } from '@/lib/omdb';
+import { fetchTraktDetails } from '@/lib/trakt';
 
 export default async function ShowDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,6 +35,16 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
     }
   }
 
+  // Fallback 1: Trakt.tv
+  if (!finalOverview || finalOverview.length < 10) {
+    const traktData = await fetchTraktDetails(show.id, 'show');
+    if (traktData && traktData.overview) {
+      finalOverview = traktData.overview;
+      imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
+    }
+  }
+
+  // Fallback 2: OMDb (last resort)
   if (!finalOverview || finalOverview.length < 10) {
     const omdbData = await fetchOmdbDetails(show.name, 'tv');
     if (omdbData) {
