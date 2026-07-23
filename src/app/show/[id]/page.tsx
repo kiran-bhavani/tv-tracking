@@ -9,6 +9,7 @@ import SeasonAccordion from '@/components/SeasonAccordion';
 import MarkUpToDateButton from '@/components/MarkUpToDateButton';
 import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
+import OverviewText from '@/components/OverviewText';
 import { fetchOmdbDetails } from '@/lib/omdb';
 
 export default async function ShowDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -106,12 +107,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
       <ShowProgress showId={show.id} totalEpisodes={show.number_of_episodes || 0} />
 
       {/* Overview */}
-      <div className="px-4 mt-8">
-        <h3 className="text-lg font-bold text-foreground mb-2">Overview</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {finalOverview || "No overview available."}
-        </p>
-      </div>
+      <OverviewText initialText={finalOverview} language={show.original_language} />
 
       {/* Cast (Horizontal Scroll) */}
       {show.credits?.cast?.length > 0 && (

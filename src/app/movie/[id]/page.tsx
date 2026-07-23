@@ -1,11 +1,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Star } from 'lucide-react';
+import { ArrowLeft, Star, Play } from 'lucide-react';
 import { getImageUrl } from '@/lib/utils';
 import WatchlistButton from '@/components/WatchlistButton';
 import ShowProgress from '@/components/ShowProgress';
 import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
+import OverviewText from '@/components/OverviewText';
 import { fetchOmdbDetails } from '@/lib/omdb';
 
 // Quick movie fetch directly in component since it's just one call
@@ -111,13 +112,16 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       {/* Progress */}
       <ShowProgress showId={movie.id} totalEpisodes={1} />
 
-      {/* Overview */}
-      <div className="px-4 mt-8">
-        <h3 className="text-lg font-bold text-foreground mb-2">Overview</h3>
-        <p className="text-muted-foreground text-sm leading-relaxed">
-          {finalOverview || "No overview available."}
-        </p>
+      {/* Watch Options (Just a dummy button for now) */}
+      <div className="px-4 mt-6">
+        <button className="w-full bg-accent/10 text-accent font-bold py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-accent/20 transition-colors">
+          <Play className="w-5 h-5 fill-current" />
+          Where to Watch
+        </button>
       </div>
+
+      {/* Overview */}
+      <OverviewText initialText={finalOverview} language={movie.original_language} />
 
       {/* Cast (Horizontal Scroll) */}
       {movie.credits?.cast?.length > 0 && (
