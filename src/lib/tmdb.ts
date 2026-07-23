@@ -65,11 +65,11 @@ export const getUpcomingEpisodes = async (showIds: number[]) => {
 };
 
 export async function getShowDetails(seriesId: string | number) {
-  return fetchTMDB(`/tv/${seriesId}?append_to_response=credits,similar,recommendations,videos`);
+  return fetchTMDB(`/tv/${seriesId}?append_to_response=credits,similar,recommendations,videos,translations`);
 }
 
 export async function getSeasonDetails(seriesId: string | number, seasonNumber: string | number) {
-  return fetchTMDB(`/tv/${seriesId}/season/${seasonNumber}`);
+  return fetchTMDB(`/tv/${seriesId}/season/${seasonNumber}?append_to_response=translations`);
 }
 
 export async function getShowRecommendations(seriesId: string | number) {
@@ -93,5 +93,5 @@ export async function getPersonDetails(personId: string | number) {
 }
 
 export async function getMovieDetails(movieId: string | number) {
-  return fetchTMDB(`/movie/${movieId}?append_to_response=credits,similar,recommendations,videos`);
+  return fetchTMDB(`/movie/${movieId}?append_to_response=credits,similar,recommendations,videos,translations`);
 }

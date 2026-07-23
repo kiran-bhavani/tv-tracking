@@ -23,6 +23,16 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
   let finalOverview = show.overview;
   let imdbRating = null;
+  
+  if (!finalOverview || finalOverview.length < 10) {
+    if (show.translations?.translations) {
+      const originalLangTranslation = show.translations.translations.find((t: any) => t.iso_639_1 === show.original_language);
+      if (originalLangTranslation?.data?.overview) {
+        finalOverview = originalLangTranslation.data.overview;
+      }
+    }
+  }
+
   if (!finalOverview || finalOverview.length < 10) {
     const omdbData = await fetchOmdbDetails(show.name, 'tv');
     if (omdbData) {
