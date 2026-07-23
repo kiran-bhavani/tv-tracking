@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Disallow private/auth routes from being indexed
+Disallow: /onboarding
+Disallow: /settings
+Disallow: /profile
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /notifications
+
+Sitemap: https://your-domain.com/sitemap.xml

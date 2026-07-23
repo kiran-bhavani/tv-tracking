@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — CSS Custom Properties
+   These tokens are referenced by Tailwind utility classes like bg-background,
+   text-foreground, bg-card, etc. Tailwind v4 reads @theme inline.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+@theme inline {
+  /* Dark palette — deep zinc-based dark mode */
+  --color-background:         #09090b;   /* zinc-950  */
+  --color-foreground:         #fafafa;   /* zinc-50   */
+  --color-card:               #18181b;   /* zinc-900  */
+  --color-card-foreground:    #fafafa;
+  --color-muted:              #27272a;   /* zinc-800  */
+  --color-muted-foreground:   #a1a1aa;   /* zinc-400  */
+  --color-border:             #3f3f46;   /* zinc-700  */
+  --color-accent:             #e11d48;   /* rose-600  */
+  --color-accent-foreground:  #fff1f2;   /* rose-50   */
+  --color-destructive:        #ef4444;   /* red-500   */
+  --color-destructive-foreground: #fef2f2;
+  --color-input:              #27272a;
+  --color-ring:               #e11d48;
+
+  /* Radius */
+  --radius:                   0.75rem;
+
+  /* Font */
+  --font-sans:                var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ── Base Resets ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* ── Safe Area Utilities (iOS PWA / notch support) ───────────────────────────── */
+.pt-safe {
+  padding-top: max(env(safe-area-inset-top, 0px), 0px);
+}
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}
+.pl-safe {
+  padding-left: env(safe-area-inset-left, 0px);
+}
+.pr-safe {
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* ── Scrollbar Hiding ─────────────────────────────────────────────────────────── */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Animations ───────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease forwards;
+}
+
+/* ── Snap Scroll ──────────────────────────────────────────────────────────────── */
+.snap-x-mandatory {
+  scroll-snap-type: x mandatory;
+}
+.snap-start {
+  scroll-snap-align: start;
+}
