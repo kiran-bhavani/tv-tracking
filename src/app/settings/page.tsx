@@ -423,14 +423,37 @@ export default function SettingsPage() {
           </Card>
         </div>
 
-        {/* Footer */}
-        <div className="text-center pt-2 pb-8">
-          <p className="text-[11px] text-muted-foreground/50 font-medium">
-            TV Time Tracker · v1.0.0
-          </p>
-          <p className="text-[11px] text-muted-foreground/30 mt-0.5">
-            Made with ❤️ using Next.js & Firebase
-          </p>
+        {/* Footer & Attributions */}
+        <div className="pt-6 pb-12 flex flex-col items-center gap-6">
+          <div className="flex flex-col items-center gap-3 w-full max-w-xs opacity-60 hover:opacity-100 transition-opacity">
+            <p className="text-[10px] font-bold tracking-widest text-muted-foreground uppercase">Data Providers</p>
+            <div className="flex items-center justify-center gap-6 w-full">
+              {/* TMDB Attribution */}
+              <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center">
+                <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" className="h-3.5 opacity-80" />
+              </a>
+              {/* Trakt Attribution */}
+              <a href="https://trakt.tv" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center">
+                {/* Fallback to text if the image is missing, but setup for the official dark mode logo */}
+                <div className="flex items-center gap-1.5">
+                  <div className="w-4 h-4 rounded-md bg-[#ED1C24] flex items-center justify-center text-white font-bold text-[10px]">t</div>
+                  <span className="font-bold text-foreground text-sm tracking-tight">trakt.</span>
+                </div>
+              </a>
+            </div>
+            <p className="text-[10px] text-muted-foreground/70 text-center leading-tight mt-2 px-4">
+              This product uses the TMDB API but is not endorsed or certified by TMDB. Premium metadata provided by Trakt.tv and OMDb.
+            </p>
+          </div>
+
+          <div className="text-center">
+            <p className="text-[11px] text-muted-foreground/50 font-medium">
+              TV Time Tracker · v1.0.0
+            </p>
+            <p className="text-[11px] text-muted-foreground/30 mt-0.5">
+              Made with ❤️ using Next.js & Firebase
+            </p>
+          </div>
         </div>
       </div>
 
