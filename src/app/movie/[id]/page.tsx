@@ -7,6 +7,7 @@ import ShowProgress from '@/components/ShowProgress';
 import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
+import MediaGallery from '@/components/MediaGallery';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 
@@ -124,6 +125,12 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={movie.original_language} type="movie" title={movie.title} />
+
+      {/* Photos & Videos */}
+      <MediaGallery 
+        videos={movie.videos?.results} 
+        images={movie.images?.backdrops?.slice(0, 8)} 
+      />
 
       {/* Cast (Horizontal Scroll) */}
       {movie.credits?.cast?.length > 0 && (

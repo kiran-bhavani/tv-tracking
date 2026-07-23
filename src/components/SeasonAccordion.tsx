@@ -8,6 +8,7 @@ import { getSeasonDetails } from "@/lib/tmdb";
 import { getImageUrl } from "@/lib/utils";
 import EpisodeRow from "./EpisodeRow";
 import EpisodeDetailsModal from "./EpisodeDetailsModal";
+import MediaGallery from "./MediaGallery";
 import { useStore, WatchedEpisode } from "@/store/useStore";
 import { cacheManager } from "@/lib/cache";
 
@@ -154,23 +155,45 @@ export default function SeasonAccordion({ showId, seasons }: SeasonAccordionProp
                   exit={{ height: 0, opacity: 0 }}
                   className="overflow-hidden bg-background"
                 >
-                  <div className="p-4 flex flex-col gap-3 border-t border-border">
+                  <div className="flex flex-col border-t border-border">
                     {isLoading && !seasonDetails ? (
                       <div className="flex justify-center py-6">
                         <Loader2 className="w-6 h-6 animate-spin text-accent" />
                       </div>
-                    ) : seasonDetails?.episodes ? (
-                      seasonDetails.episodes.map((episode: any, index: number) => (
-                        <EpisodeRow 
-                          key={episode.id} 
-                          episode={episode} 
-                          showId={showId}
-                          allEpisodes={seasonDetails.episodes}
-                          onClick={() => setSelectedEpisodeIndex(index)}
-                        />
-                      ))
+                    ) : seasonDetails ? (
+                      <>
+                        {seasonDetails.overview && (
+                          <div className="px-4 pt-5 text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                            {seasonDetails.overview}
+                          </div>
+                        )}
+                        {(seasonDetails.videos?.results?.length > 0 || seasonDetails.images?.posters?.length > 0) && (
+                          <div className="-mt-2 mb-2">
+                            <MediaGallery 
+                              title="Season Trailers & Posters" 
+                              videos={seasonDetails.videos?.results} 
+                              images={seasonDetails.images?.posters?.slice(0, 8)} 
+                            />
+                          </div>
+                        )}
+                        <div className="p-4 flex flex-col gap-3">
+                          {seasonDetails.episodes?.length > 0 ? (
+                            seasonDetails.episodes.map((episode: any, index: number) => (
+                              <EpisodeRow 
+                                key={episode.id} 
+                                episode={episode} 
+                                showId={showId}
+                                allEpisodes={seasonDetails.episodes}
+                                onClick={() => setSelectedEpisodeIndex(index)}
+                              />
+                            ))
+                          ) : (
+                            <p className="text-center text-sm text-muted-foreground py-4">No episodes available.</p>
+                          )}
+                        </div>
+                      </>
                     ) : (
-                      <p className="text-center text-sm text-muted-foreground py-4">No episodes available.</p>
+                      <p className="text-center text-sm text-muted-foreground py-4">Failed to load season data.</p>
                     )}
                   </div>
                 </motion.div>

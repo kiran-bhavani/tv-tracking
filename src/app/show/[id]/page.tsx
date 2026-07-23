@@ -10,6 +10,7 @@ import MarkUpToDateButton from '@/components/MarkUpToDateButton';
 import ShowCard from '@/components/ShowCard';
 import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
+import MediaGallery from '@/components/MediaGallery';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -119,6 +120,12 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={show.original_language} type="show" title={show.name} />
+
+      {/* Photos & Videos */}
+      <MediaGallery 
+        videos={show.videos?.results} 
+        images={show.images?.backdrops?.slice(0, 8)} 
+      />
 
       {/* Cast (Horizontal Scroll) */}
       {show.credits?.cast?.length > 0 && (

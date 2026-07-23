@@ -12,7 +12,9 @@ import EpisodeComments from './EpisodeComments';
 import { fetchOmdbEpisodeDetails, OmdbEpisodeData } from '@/lib/omdb';
 import { fetchTraktEpisodeAction } from '@/app/actions/trakt';
 import { fetchTvmazeEpisodeAction } from '@/app/actions/tvmaze';
+import { fetchTmdbEpisodeAction } from '@/app/actions/tmdb';
 import OverviewText from './OverviewText';
+import MediaGallery from './MediaGallery';
 
 interface EpisodeDetailsModalProps {
   showId: number;
@@ -30,6 +32,7 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
   const [currentIndex, setCurrentIndex] = useState(initialEpisodeIndex);
   const [direction, setDirection] = useState(0);
   const [omdbData, setOmdbData] = useState<OmdbEpisodeData | null>(null);
+  const [episodeDetails, setEpisodeDetails] = useState<any>(null);
 
   const episode = allEpisodes[currentIndex];
   const seasonNumber = episode?.season_number || 1;
@@ -77,6 +80,20 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
       isMounted = false;
     };
   }, [episode?.id, showId, showName, seasonNumber, episode?.episode_number, episode?.overview]);
+
+  // Lazy load TMDB rich media (Videos & Images)
+  useEffect(() => {
+    let isMounted = true;
+    setEpisodeDetails(null);
+    if (episode) {
+      fetchTmdbEpisodeAction(showId, seasonNumber, episode.episode_number).then(data => {
+        if (isMounted && data) {
+          setEpisodeDetails(data);
+        }
+      });
+    }
+    return () => { isMounted = false; };
+  }, [showId, seasonNumber, episode?.episode_number]);
 
   const handleToggle = () => {
     if (!episode) return;
@@ -264,6 +281,16 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
                 episode={episode.episode_number} 
               />
             </div>
+
+            {(episodeDetails?.videos?.results?.length > 0 || episodeDetails?.images?.stills?.length > 0) && (
+              <div className="-mx-4 mt-2 mb-6">
+                <MediaGallery 
+                  title="Episode Previews & Photos" 
+                  videos={episodeDetails.videos?.results} 
+                  images={episodeDetails.images?.stills?.slice(0, 8)} 
+                />
+              </div>
+            )}
 
             {episode.guest_stars && episode.guest_stars.length > 0 && (
               <div className="mt-10">
