@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
 import UpcomingTab from '@/components/UpcomingTab';
+import UpNextDeck from '@/components/UpNextDeck';
 
 const getImageUrl = (path: string | null, size: string = 'w500') => 
   path ? `https://image.tmdb.org/t/p/${size}${path}` : '/placeholder.png';
@@ -211,6 +212,10 @@ export default function WatchlistPage() {
               </div>
             )}
 
+            {/* Fast-Watch Up Next Deck */}
+            <UpNextDeck />
+
+            {/* Recommended For You Engine */}
             <ForYouRecommendations type="tv" />
           </>
         )}

@@ -35,6 +35,7 @@ function Toast({ message, type, onDismiss }: { message: string; type: 'success' 
   );
 }
 import ManageListModal from '@/components/ManageListModal';
+import AchievementBadges from '@/components/AchievementBadges';
 
 export default function ProfilePage() {
   const [mounted, setMounted] = useState(false);
@@ -148,6 +149,16 @@ export default function ProfilePage() {
         <p className="text-sm text-muted-foreground mt-1 flex items-center gap-2">
           {user?.email}
         </p>
+
+        {user && (
+          <Link
+            href={`/user/${user.uid}`}
+            className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent/15 text-accent hover:bg-accent/25 rounded-full text-xs font-bold transition-colors border border-accent/20"
+          >
+            <Share className="w-3.5 h-3.5" />
+            <span>View Public Profile</span>
+          </Link>
+        )}
       </div>
 
       <div className="px-4 py-8">
@@ -203,6 +214,12 @@ export default function ProfilePage() {
           </div>
         </div>
       </motion.div>
+
+      {/* Achievement Badges & Binge Stats */}
+      <div className="px-4 py-6">
+        <AchievementBadges />
+      </div>
+
 
       {topGenres.length > 0 && (
         <motion.div 

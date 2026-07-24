@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Search as SearchIcon, X } from 'lucide-react';
+import { Search as SearchIcon, X, User } from 'lucide-react';
 import { searchMulti } from '@/lib/tmdb';
 import ShowCard from '@/components/ShowCard';
 import { useDebounce } from '@/hooks/useDebounce';
+import Link from 'next/link';
+import Image from 'next/image';
+import { getImageUrl } from '@/lib/utils';
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
@@ -22,8 +25,8 @@ export default function SearchPage() {
       setIsSearching(true);
       try {
         const data = await searchMulti(debouncedQuery);
-        // Filter out people, only keep tv and movies
-        setResults((data.results || []).filter((item: any) => item.media_type === 'tv' || item.media_type === 'movie'));
+        // Include tv, movie, and person
+        setResults((data.results || []).filter((item: any) => item.media_type === 'tv' || item.media_type === 'movie' || item.media_type === 'person'));
       } catch (error) {
         console.error("Search failed", error);
       } finally {
@@ -35,13 +38,13 @@ export default function SearchPage() {
   }, [debouncedQuery]);
 
   return (
-    <div className="min-h-screen bg-background pt-safe">
+    <div className="min-h-screen bg-background pt-safe pb-24">
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-4 border-b border-border">
         <div className="relative">
           <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search shows, movies, users..."
+            placeholder="Search shows, movies, actors, directors..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-muted border border-border rounded-full py-3 pl-10 pr-10 text-foreground placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition"
@@ -64,9 +67,35 @@ export default function SearchPage() {
           </div>
         ) : results.length > 0 ? (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4 justify-items-center">
-            {results.map((show: any) => (
-              <ShowCard key={show.id} show={show} />
-            ))}
+            {results.map((item: any) => {
+              if (item.media_type === 'person') {
+                return (
+                  <Link
+                    key={`person_${item.id}`}
+                    href={`/person/${item.id}`}
+                    className="flex flex-col items-center group w-full"
+                  >
+                    <div className="w-28 h-40 rounded-xl overflow-hidden bg-muted border border-border group-hover:border-accent transition-colors relative mb-2 shadow-md">
+                      {item.profile_path ? (
+                        <Image src={getImageUrl(item.profile_path, 'w500')} alt={item.name} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                          <User className="w-10 h-10" />
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs font-bold text-foreground text-center truncate w-full group-hover:text-accent transition-colors">
+                      {item.name}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground text-center truncate w-full">
+                      {item.known_for_department || 'Artist'}
+                    </span>
+                  </Link>
+                );
+              }
+
+              return <ShowCard key={item.id} show={item} />;
+            })}
           </div>
         ) : query ? (
           <div className="text-center text-muted-foreground py-10">
@@ -74,10 +103,11 @@ export default function SearchPage() {
           </div>
         ) : (
           <div className="text-center text-muted-foreground py-10">
-            Find your next favorite show.
+            Find your next favorite show, movie, or actor.
           </div>
         )}
       </div>
     </div>
   );
 }
+
