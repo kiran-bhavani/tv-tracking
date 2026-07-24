@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Star, Play } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { getImageUrl } from '@/lib/utils';
 import WatchlistButton from '@/components/WatchlistButton';
 import ShowProgress from '@/components/ShowProgress';
@@ -11,22 +12,19 @@ import MediaGallery from '@/components/MediaGallery';
 import WatchProviders from '@/components/WatchProviders';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
-
-// Quick movie fetch directly in component since it's just one call
-async function getMovieDetails(id: string) {
-  const res = await fetch(`https://api.themoviedb.org/3/movie/${id}?append_to_response=credits,similar,recommendations&language=en-US`, {
-    headers: {
-      Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
-      accept: 'application/json'
-    }
-  });
-  if (!res.ok) throw new Error('Failed to fetch movie');
-  return res.json();
-}
+import { getMovieDetails } from '@/lib/tmdb';
 
 export default async function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const movie = await getMovieDetails(id);
+
+  let movie: any;
+  try {
+    movie = await getMovieDetails(id);
+    if (!movie || !movie.id) notFound();
+  } catch {
+    notFound();
+  }
+
   const backdropUrl = getImageUrl(movie.backdrop_path, 'original');
   const posterUrl = getImageUrl(movie.poster_path, 'w500');
 
@@ -39,20 +37,24 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
 
   // Fallback 1: Trakt.tv
   if (!finalOverview || finalOverview.length < 10) {
-    const traktData = await fetchTraktDetails(movie.id, 'movie');
-    if (traktData && traktData.overview) {
-      finalOverview = traktData.overview;
-      imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
-    }
+    try {
+      const traktData = await fetchTraktDetails(movie.id, 'movie');
+      if (traktData && traktData.overview) {
+        finalOverview = traktData.overview;
+        imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
+      }
+    } catch { /* skip */ }
   }
 
   // Fallback 2: OMDb (last resort)
   if (!finalOverview || finalOverview.length < 10) {
-    const omdbData = await fetchOmdbDetails(movie.title, 'movie');
-    if (omdbData) {
-      finalOverview = omdbData.overview || finalOverview;
-      imdbRating = omdbData.imdbRating;
-    }
+    try {
+      const omdbData = await fetchOmdbDetails(movie.title, 'movie');
+      if (omdbData) {
+        finalOverview = omdbData.overview || finalOverview;
+        imdbRating = omdbData.imdbRating;
+      }
+    } catch { /* skip */ }
   }
 
   return (

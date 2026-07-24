@@ -7,39 +7,7 @@ import TopNav from '@/components/TopNav';
 import { User, Eye, Users } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
-import { cacheManager } from '@/lib/cache';
-import { getShowDetails } from '@/lib/tmdb';
 import { motion } from 'framer-motion';
-
-// Helper component to lazily fetch and cache show names
-function ShowBadge({ showId, season, episode }: { showId: number, season: number, episode: number }) {
-  const [showName, setShowName] = useState<string>(`Show #${showId}`);
-
-  useEffect(() => {
-    async function fetchName() {
-      const cacheKey = `show_details_${showId}`;
-      const cached = cacheManager.get<any>(cacheKey);
-      if (cached) {
-        setShowName(cached.name || cached.title);
-      } else {
-        try {
-          const data = await getShowDetails(showId);
-          cacheManager.set(cacheKey, data);
-          setShowName(data.name || data.title);
-        } catch (e) {
-          // Ignore
-        }
-      }
-    }
-    fetchName();
-  }, [showId]);
-
-  return (
-    <Link href={`/show/${showId}`} className="text-xs font-bold text-accent hover:underline">
-      {showName} • S{season}E{episode}
-    </Link>
-  );
-}
 
 function FeedItem({ comment, index }: { comment: any, index: number }) {
   const [revealed, setRevealed] = useState(!comment.isSpoiler);
@@ -68,7 +36,9 @@ function FeedItem({ comment, index }: { comment: any, index: number }) {
         </div>
         
         <div className="mb-2">
-          <ShowBadge showId={comment.showId} season={comment.seasonNumber} episode={comment.episodeNumber} />
+          <Link href={`/show/${comment.showId}`} className="text-xs font-bold text-accent hover:underline">
+            {comment.showName || `Show #${comment.showId}`} • S{comment.seasonNumber}E{comment.episodeNumber}
+          </Link>
         </div>
         
         <div className={`relative transition-all duration-300 ${!revealed ? 'cursor-pointer group mt-1' : 'mt-1'}`} onClick={() => !revealed && setRevealed(true)}>

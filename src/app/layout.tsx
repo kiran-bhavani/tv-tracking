@@ -15,6 +15,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tv-tracking-gnpk.vercel.app'),
   title: {
     default: "TV Time Tracker",
     template: "%s | TV Time Tracker",
@@ -33,11 +34,13 @@ export const metadata: Metadata = {
     title: "TV Time Tracker",
     description: "Track your favorite TV shows and movies.",
     siteName: "TV Time Tracker",
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'TV Time Tracker' }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "TV Time Tracker",
     description: "Track your favorite TV shows and movies.",
+    images: ['/og-image.png'],
   },
 };
 

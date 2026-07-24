@@ -10,4 +10,4 @@ Disallow: /register
 Disallow: /forgot-password
 Disallow: /notifications
 
-Sitemap: https://your-domain.com/sitemap.xml
+Sitemap: https://tv-tracking-gnpk.vercel.app/sitemap.xml

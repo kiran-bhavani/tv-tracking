@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
+import { notFound } from 'next/navigation';
 import { getShowDetails } from '@/lib/tmdb';
 import { getImageUrl } from '@/lib/utils';
 import WatchlistButton from '@/components/WatchlistButton';
@@ -18,7 +19,15 @@ import { fetchTvmazeShow } from '@/lib/tvmaze';
 
 export default async function ShowDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const show = await getShowDetails(id);
+  
+  let show: any;
+  try {
+    show = await getShowDetails(id);
+    if (!show || !show.id) notFound();
+  } catch {
+    notFound();
+  }
+
   const backdropUrl = getImageUrl(show.backdrop_path, 'original');
   const posterUrl = getImageUrl(show.poster_path, 'w500');
 
@@ -31,28 +40,34 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
   // Fallback 1: Trakt.tv
   if (!finalOverview || finalOverview.length < 10) {
-    const traktData = await fetchTraktDetails(show.id, 'show');
-    if (traktData && traktData.overview) {
-      finalOverview = traktData.overview;
-      imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
-    }
+    try {
+      const traktData = await fetchTraktDetails(show.id, 'show');
+      if (traktData && traktData.overview) {
+        finalOverview = traktData.overview;
+        imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
+      }
+    } catch { /* skip */ }
   }
 
   // Fallback 2: TVmaze
   if (!finalOverview || finalOverview.length < 10) {
-    const tvmazeData = await fetchTvmazeShow(show.name);
-    if (tvmazeData && tvmazeData.summary) {
-      finalOverview = tvmazeData.summary.replace(/<[^>]*>?/gm, ''); // strip HTML
-    }
+    try {
+      const tvmazeData = await fetchTvmazeShow(show.name);
+      if (tvmazeData && tvmazeData.summary) {
+        finalOverview = tvmazeData.summary.replace(/<[^>]*>?/gm, '');
+      }
+    } catch { /* skip */ }
   }
 
   // Fallback 3: OMDb (last resort)
   if (!finalOverview || finalOverview.length < 10) {
-    const omdbData = await fetchOmdbDetails(show.name, 'tv');
-    if (omdbData) {
-      finalOverview = omdbData.overview || finalOverview;
-      imdbRating = omdbData.imdbRating;
-    }
+    try {
+      const omdbData = await fetchOmdbDetails(show.name, 'tv');
+      if (omdbData) {
+        finalOverview = omdbData.overview || finalOverview;
+        imdbRating = omdbData.imdbRating;
+      }
+    } catch { /* skip */ }
   }
 
   return (

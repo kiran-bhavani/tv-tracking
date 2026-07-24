@@ -8,13 +8,13 @@ import { Send, User, MessageSquare, Image as ImageIcon, EyeOff, Eye, X } from 'l
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 
-const MOCK_GIFS = [
-  "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif", // Mind blown
-  "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif", // Popcorn
-  "https://media.giphy.com/media/3o7TKyPpWvFrpwSkhO/giphy.gif", // Crying
-  "https://media.giphy.com/media/fsQbx1hX7hPBBpIM5b/giphy.gif", // Laughing
-  "https://media.giphy.com/media/3o6Zt4HU9uwXmXSAuI/giphy.gif", // Wow
-  "https://media.giphy.com/media/jUwpNzg9IcyrK/giphy.gif" // Homer bush
+const REACTION_GIFS = [
+  "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif",
+  "https://media.giphy.com/media/l0HlvtIPzPdt2usKs/giphy.gif",
+  "https://media.giphy.com/media/3o7TKyPpWvFrpwSkhO/giphy.gif",
+  "https://media.giphy.com/media/fsQbx1hX7hPBBpIM5b/giphy.gif",
+  "https://media.giphy.com/media/3o6Zt4HU9uwXmXSAuI/giphy.gif",
+  "https://media.giphy.com/media/jUwpNzg9IcyrK/giphy.gif"
 ];
 
 // Helper Component for Spoiler Comments
@@ -80,6 +80,7 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [selectedGif, setSelectedGif] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [cooldown, setCooldown] = useState(false);
 
   useEffect(() => {
     const q = query(
@@ -108,7 +109,11 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if ((!newComment.trim() && !selectedGif) || !user) return;
+    if ((!newComment.trim() && !selectedGif) || !user || cooldown) return;
+    if (newComment.trim().length > 500) return;
+
+    setCooldown(true);
+    setTimeout(() => setCooldown(false), 5000);
 
     try {
       await addDoc(collection(db, 'comments'), {
@@ -117,7 +122,7 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
         episodeNumber,
         userId: user.uid,
         userDisplayName: user.displayName || user.email?.split('@')[0] || 'User',
-        text: newComment.trim(),
+        text: newComment.trim().slice(0, 500),
         mediaUrl: selectedGif,
         isSpoiler: isSpoiler,
         timestamp: serverTimestamp()
@@ -161,11 +166,12 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="What did you think of this episode?"
+              maxLength={500}
               className="flex-1 bg-transparent px-2 text-sm text-foreground placeholder:text-muted-foreground outline-none"
             />
             <button
               type="submit"
-              disabled={!newComment.trim() && !selectedGif}
+              disabled={(!newComment.trim() && !selectedGif) || cooldown}
               className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-accent-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex-shrink-0"
             >
               <Send className="w-4 h-4 ml-0.5" />
@@ -200,17 +206,17 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
             </div>
           </div>
 
-          {/* Mock GIF Picker */}
+          {/* GIF Picker */}
           {showGifPicker && (
             <div className="absolute top-full left-0 w-full sm:w-[320px] mt-2 bg-card border border-border rounded-xl shadow-2xl p-3 z-50">
               <div className="flex justify-between items-center mb-2 pb-2 border-b border-border/50">
-                <span className="text-xs font-bold text-muted-foreground">Select a GIF (Mock)</span>
+                <span className="text-xs font-bold text-muted-foreground">Quick Reactions</span>
                 <button onClick={() => setShowGifPicker(false)} className="text-muted-foreground hover:text-foreground">
                   <X className="w-4 h-4" />
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-2 h-48 overflow-y-auto hide-scrollbar">
-                {MOCK_GIFS.map((gif, i) => (
+                {REACTION_GIFS.map((gif, i) => (
                   <button 
                     key={i} 
                     type="button"
