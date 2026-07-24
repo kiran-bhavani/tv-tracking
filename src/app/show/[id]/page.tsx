@@ -13,9 +13,12 @@ import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import MediaGallery from '@/components/MediaGallery';
 import WatchProviders from '@/components/WatchProviders';
+import NextEpisodeCard from '@/components/NextEpisodeCard';
+import ShowrunnerCard from '@/components/ShowrunnerCard';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
+import { formatBingeTime, extractTvRating } from '@/lib/utils';
 
 export default async function ShowDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -70,6 +73,10 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
     } catch { /* skip */ }
   }
 
+  const tvRating = extractTvRating(show);
+  const bingeDuration = formatBingeTime(show.number_of_episodes, show.episode_run_time?.[0] || 45);
+  const primaryNetwork = show.networks?.[0];
+
   return (
     <div className="min-h-screen bg-background pb-10">
       {/* Hero Section */}
@@ -96,23 +103,68 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
         </div>
         
         {/* Title and Info */}
-        <div className="pt-8 flex flex-col justify-end pb-2">
-          <h1 className="text-2xl font-black text-foreground leading-tight">{show.name}</h1>
+        <div className="pt-8 flex flex-col justify-end pb-2 min-w-0">
+          {primaryNetwork && (
+            <div className="flex items-center gap-1.5 mb-1">
+              {primaryNetwork.logo_path ? (
+                <div className="h-4 w-12 relative opacity-80">
+                  <Image src={getImageUrl(primaryNetwork.logo_path, 'w92')} alt={primaryNetwork.name} fill className="object-contain object-left" />
+                </div>
+              ) : (
+                <span className="text-[10px] uppercase font-black text-accent bg-accent/10 px-2 py-0.5 rounded border border-accent/20">
+                  {primaryNetwork.name}
+                </span>
+              )}
+            </div>
+          )}
+
+          <h1 className="text-2xl font-black text-foreground leading-tight truncate">{show.name}</h1>
+
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs font-bold text-muted-foreground">
             <span className="flex items-center gap-1 text-accent">
               <Star className="w-4 h-4 fill-current" />
               {show.vote_average.toFixed(1)}
               {imdbRating && ` • IMDb ${imdbRating}`}
             </span>
+            {tvRating && (
+              <>
+                <span>•</span>
+                <span className="text-[10px] font-black border border-border px-1.5 py-0.5 rounded text-foreground">
+                  {tvRating}
+                </span>
+              </>
+            )}
             <span>•</span>
             <span>{show.first_air_date?.split('-')[0]}</span>
             <span>•</span>
             <span>{show.status}</span>
             <span>•</span>
-            <span>{show.number_of_seasons} Seasons</span>
+            <span>{show.number_of_seasons} S</span>
           </div>
+
+          {/* Binge Duration Badge */}
+          {bingeDuration && (
+            <div className="mt-1 text-[11px] font-medium text-muted-foreground">
+              🕒 Binge time: <span className="text-foreground font-bold">{bingeDuration}</span> ({show.number_of_episodes} eps)
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Genre Pills */}
+      {show.genres && show.genres.length > 0 && (
+        <div className="px-4 mt-4 flex flex-wrap gap-2">
+          {show.genres.map((genre: any) => (
+            <Link
+              key={genre.id}
+              href={`/discover?genre=${genre.id}`}
+              className="text-[11px] font-bold text-muted-foreground bg-muted/60 hover:bg-accent/20 hover:text-accent border border-border/50 px-3 py-1 rounded-full transition-colors"
+            >
+              {genre.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="px-4 mt-6 flex gap-3">
@@ -133,6 +185,16 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Progress */}
       <ShowProgress showId={show.id} totalEpisodes={show.number_of_episodes || 0} />
+
+      {/* Next Episode Airing Countdown Card */}
+      {show.next_episode_to_air && (
+        <NextEpisodeCard nextEpisode={show.next_episode_to_air} />
+      )}
+
+      {/* Showrunners & Creators */}
+      {show.created_by && show.created_by.length > 0 && (
+        <ShowrunnerCard createdBy={show.created_by} />
+      )}
 
       {/* Where to Watch */}
       <WatchProviders providersData={show["watch/providers"]} countryCode="US" />

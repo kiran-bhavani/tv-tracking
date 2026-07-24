@@ -16,6 +16,7 @@ import MovieReviewSection from '@/components/MovieReviewSection';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { getMovieDetails } from '@/lib/tmdb';
+import { formatRuntime, extractMovieRating } from '@/lib/utils';
 
 export default async function MovieDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -60,6 +61,8 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
     } catch { /* skip */ }
   }
 
+  const movieRating = extractMovieRating(movie);
+
   return (
     <div className="min-h-screen bg-background pb-10">
       {/* Hero Section */}
@@ -86,21 +89,48 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
         </div>
         
         {/* Title and Info */}
-        <div className="pt-8 flex flex-col justify-end pb-2">
-          <h1 className="text-2xl font-black text-foreground leading-tight">{movie.title}</h1>
+        <div className="pt-8 flex flex-col justify-end pb-2 min-w-0">
+          <h1 className="text-2xl font-black text-foreground leading-tight truncate">{movie.title}</h1>
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-2 text-xs font-bold text-muted-foreground">
             <span className="flex items-center gap-1 text-accent">
               <Star className="w-4 h-4 fill-current" />
               {movie.vote_average.toFixed(1)}
               {imdbRating && ` • IMDb ${imdbRating}`}
             </span>
+            {movieRating && (
+              <>
+                <span>•</span>
+                <span className="text-[10px] font-black border border-border px-1.5 py-0.5 rounded text-foreground">
+                  {movieRating}
+                </span>
+              </>
+            )}
             <span>•</span>
             <span>{movie.release_date?.split('-')[0]}</span>
-            <span>•</span>
-            <span>{Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m</span>
+            {movie.runtime > 0 && (
+              <>
+                <span>•</span>
+                <span>{formatRuntime(movie.runtime)}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Genre Pills */}
+      {movie.genres && movie.genres.length > 0 && (
+        <div className="px-4 mt-4 flex flex-wrap gap-2">
+          {movie.genres.map((genre: any) => (
+            <Link
+              key={genre.id}
+              href={`/discover?genre=${genre.id}`}
+              className="text-[11px] font-bold text-muted-foreground bg-muted/60 hover:bg-accent/20 hover:text-accent border border-border/50 px-3 py-1 rounded-full transition-colors"
+            >
+              {genre.name}
+            </Link>
+          ))}
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="px-4 mt-6">
