@@ -17,6 +17,7 @@ import NextEpisodeCard from '@/components/NextEpisodeCard';
 import ShowrunnerCard from '@/components/ShowrunnerCard';
 import SocialStoryModal from '@/components/SocialStoryModal';
 import ShareStoryButton from '@/components/ShareStoryButton';
+import TriviaQuotesCard from '@/components/TriviaQuotesCard';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -211,6 +212,9 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={show.original_language} type="show" title={show.name} />
+
+      {/* Trivia & Iconic Quotes */}
+      <TriviaQuotesCard title={show.name} type="show" />
 
       {/* Photos & Videos */}
       <MediaGallery 

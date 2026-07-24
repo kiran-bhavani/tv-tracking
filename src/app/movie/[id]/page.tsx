@@ -14,6 +14,7 @@ import MovieSpecsCard from '@/components/MovieSpecsCard';
 import MovieCollectionCard from '@/components/MovieCollectionCard';
 import MovieReviewSection from '@/components/MovieReviewSection';
 import ShareStoryButton from '@/components/ShareStoryButton';
+import TriviaQuotesCard from '@/components/TriviaQuotesCard';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { getMovieDetails } from '@/lib/tmdb';
@@ -174,6 +175,9 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={movie.original_language} type="movie" title={movie.title} />
+
+      {/* Trivia & Iconic Quotes */}
+      <TriviaQuotesCard title={movie.title} type="movie" tagline={movie.tagline} />
 
       {/* Franchise Collection Progress */}
       {movie.belongs_to_collection && (

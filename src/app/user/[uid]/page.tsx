@@ -4,15 +4,17 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import TopNav from '@/components/TopNav';
-import { User, Tv, Film, Star, Share2, Loader2 } from 'lucide-react';
+import { User, Tv, Film, Star, Share2, Loader2, Users } from 'lucide-react';
 import ShowCard from '@/components/ShowCard';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import WatchTogetherModal from '@/components/WatchTogetherModal';
 
 export default function PublicUserProfilePage({ params }: { params: { uid: string } }) {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showWatchTogether, setShowWatchTogether] = useState(false);
 
   useEffect(() => {
     async function loadUser() {
@@ -83,13 +85,22 @@ export default function PublicUserProfilePage({ params }: { params: { uid: strin
         <h1 className="text-2xl font-black text-foreground">{userData.displayName || 'TV Time User'}</h1>
         <p className="text-xs text-muted-foreground mt-1">TV & Movie Enthusiast</p>
 
-        <button
-          onClick={handleShare}
-          className="mt-4 flex items-center gap-2 px-4 py-2 bg-accent/20 text-accent rounded-full text-xs font-bold hover:bg-accent/30 transition-colors"
-        >
-          <Share2 className="w-4 h-4" />
-          {copied ? 'Profile Link Copied!' : 'Share Profile'}
-        </button>
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => setShowWatchTogether(true)}
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent text-accent-foreground rounded-full text-xs font-bold shadow-lg hover:bg-accent/90 transition-colors"
+          >
+            <Users className="w-4 h-4" />
+            <span>Watch Together</span>
+          </button>
+          <button
+            onClick={handleShare}
+            className="flex items-center gap-1.5 px-4 py-2 bg-accent/20 text-accent rounded-full text-xs font-bold hover:bg-accent/30 transition-colors"
+          >
+            <Share2 className="w-4 h-4" />
+            {copied ? 'Copied!' : 'Share Profile'}
+          </button>
+        </div>
       </div>
 
       {/* Watchlist Section */}
@@ -137,6 +148,15 @@ export default function PublicUserProfilePage({ params }: { params: { uid: strin
           </div>
         </div>
       )}
+      <AnimatePresence>
+        {showWatchTogether && (
+          <WatchTogetherModal
+            targetUserUid={params.uid}
+            targetUserName={userData.displayName || 'User'}
+            onClose={() => setShowWatchTogether(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
