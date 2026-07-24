@@ -9,7 +9,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/firebase';
 import { doc, setDoc } from 'firebase/firestore';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import WrappedModal from '@/components/WrappedModal';
 
 function Toast({ message, type, onDismiss }: { message: string; type: 'success' | 'error' | 'info'; onDismiss: () => void }) {
   useEffect(() => {
@@ -49,6 +50,7 @@ export default function ProfilePage() {
   
   // Custom Lists Management
   const [managingList, setManagingList] = useState<any | null>(null);
+  const [showWrappedModal, setShowWrappedModal] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -151,13 +153,22 @@ export default function ProfilePage() {
         </p>
 
         {user && (
-          <Link
-            href={`/user/${user.uid}`}
-            className="mt-3 inline-flex items-center gap-2 px-3.5 py-1.5 bg-accent/15 text-accent hover:bg-accent/25 rounded-full text-xs font-bold transition-colors border border-accent/20"
-          >
-            <Share className="w-3.5 h-3.5" />
-            <span>View Public Profile</span>
-          </Link>
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => setShowWrappedModal(true)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-accent text-accent-foreground rounded-full text-xs font-bold transition-colors shadow-md hover:bg-accent/90"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>View My Wrapped</span>
+            </button>
+            <Link
+              href={`/user/${user.uid}`}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-accent/15 text-accent hover:bg-accent/25 rounded-full text-xs font-bold transition-colors border border-accent/20"
+            >
+              <Share className="w-3.5 h-3.5" />
+              <span>Public Profile</span>
+            </Link>
+          </div>
         )}
       </div>
 
@@ -350,6 +361,14 @@ export default function ProfilePage() {
           onShare={handleShareList}
         />
       )}
+      <AnimatePresence>
+        {showWrappedModal && (
+          <WrappedModal
+            userName={user?.displayName || user?.email?.split('@')[0] || 'User'}
+            onClose={() => setShowWrappedModal(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

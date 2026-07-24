@@ -4,6 +4,7 @@ import ShowCard from '@/components/ShowCard';
 import { Search } from 'lucide-react';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
 import InfiniteDiscoverRows from '@/components/InfiniteDiscoverRows';
+import TrendingTrailersCarousel from '@/components/TrendingTrailersCarousel';
 
 export const revalidate = 3600; // Revalidate every hour
 
@@ -43,6 +44,9 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           </Link>
         </div>
       </div>
+
+      {/* Trending Trailers Video Carousel */}
+      <TrendingTrailersCarousel />
 
       {/* Recommended For You Engine */}
       <ForYouRecommendations type={isMovie ? 'movie' : 'tv'} />
