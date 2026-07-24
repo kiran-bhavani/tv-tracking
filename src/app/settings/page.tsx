@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
-  ArrowLeft, Bell, BellOff, Download, Trash2, LogOut,
+  ArrowLeft, Bell, BellOff, Download, Upload, Trash2, LogOut,
   Loader2, Key, CheckCircle, AlertCircle, ChevronRight,
   Shield, Palette, Database, User as UserIcon, Settings as SettingsIcon,
   Moon, Smartphone, ExternalLink
@@ -208,6 +208,7 @@ export default function SettingsPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if ('Notification' in window) setPushEnabled(Notification.permission === 'granted');
@@ -239,8 +240,8 @@ export default function SettingsPage() {
   };
 
   const handleExportData = () => {
-    const { watchlist, watchedEpisodes, customLists } = useStore.getState();
-    const blob = new Blob([JSON.stringify({ watchlist, watchedEpisodes, customLists, exportDate: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+    const { watchlist, watchedEpisodes, customLists, movieReviews } = useStore.getState();
+    const blob = new Blob([JSON.stringify({ watchlist, watchedEpisodes, customLists, movieReviews, exportDate: new Date().toISOString() }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -248,6 +249,32 @@ export default function SettingsPage() {
     a.click();
     URL.revokeObjectURL(url);
     showToast('Data exported successfully!', 'success');
+  };
+
+  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (json && (json.watchlist || json.watchedEpisodes)) {
+          useStore.getState().setStoreData(
+            json.watchlist || {},
+            json.watchedEpisodes || {},
+            json.customLists || [],
+            json.movieReviews || {}
+          );
+          showToast('Watchlist & history imported successfully!', 'success');
+        } else {
+          showToast('Invalid backup file structure.', 'error');
+        }
+      } catch {
+        showToast('Failed to parse import file.', 'error');
+      }
+    };
+    reader.readAsText(file);
   };
 
   const executeDeletion = async (credential?: any) => {
@@ -395,6 +422,20 @@ export default function SettingsPage() {
               label="Export My Data"
               subtitle="Download watchlist as JSON"
               onClick={handleExportData}
+            />
+            <SettingRow
+              icon={<Upload className="w-4 h-4 text-emerald-400" />}
+              iconBg="bg-emerald-500/10"
+              label="Import Watchlist & History"
+              subtitle="Restore from JSON backup file"
+              onClick={() => fileInputRef.current?.click()}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImportData}
+              accept=".json"
+              className="hidden"
             />
             <SettingRow
               icon={<Shield className="w-4 h-4 text-green-400" />}

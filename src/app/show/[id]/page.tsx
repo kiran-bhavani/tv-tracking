@@ -15,6 +15,8 @@ import MediaGallery from '@/components/MediaGallery';
 import WatchProviders from '@/components/WatchProviders';
 import NextEpisodeCard from '@/components/NextEpisodeCard';
 import ShowrunnerCard from '@/components/ShowrunnerCard';
+import SocialStoryModal from '@/components/SocialStoryModal';
+import ShareStoryButton from '@/components/ShareStoryButton';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -181,6 +183,14 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
         }} />
         <MarkUpToDateButton showId={show.id} seasons={show.seasons} />
         <SaveToListButton showId={show.id} />
+        <ShareStoryButton 
+          title={show.name} 
+          posterPath={show.poster_path} 
+          backdropPath={show.backdrop_path} 
+          type="show"
+          rating={show.vote_average}
+          year={show.first_air_date?.split('-')[0]}
+        />
       </div>
 
       {/* Progress */}

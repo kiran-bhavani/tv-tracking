@@ -9,6 +9,7 @@ import { getImageUrl } from '@/lib/utils';
 import { useStore } from '@/store/useStore';
 import { logActivity } from '@/lib/activity';
 import EpisodeComments from './EpisodeComments';
+import EpisodeReactions from './EpisodeReactions';
 import { fetchOmdbEpisodeDetails, OmdbEpisodeData } from '@/lib/omdb';
 import { fetchTraktEpisodeAction } from '@/app/actions/trakt';
 import { fetchTvmazeEpisodeAction } from '@/app/actions/tvmaze';
@@ -281,6 +282,14 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
                 episode={episode.episode_number} 
               />
             </div>
+
+            {/* Episode Emotion Polls & Character MVP Voting */}
+            <EpisodeReactions 
+              showId={showId} 
+              seasonNumber={seasonNumber} 
+              episodeNumber={episode.episode_number} 
+              cast={episode.guest_stars} 
+            />
 
             {(episodeDetails?.videos?.results?.length > 0 || episodeDetails?.images?.stills?.length > 0) && (
               <div className="-mx-4 mt-2 mb-6">

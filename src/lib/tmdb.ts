@@ -84,9 +84,24 @@ export async function getGenres(type: 'tv' | 'movie' = 'tv') {
   return fetchTMDB(`/genre/${type}/list?language=en-US`);
 }
 
-export async function getDiscoverByGenre(type: 'tv' | 'movie', genreId: number, page: number = 1) {
-  return fetchTMDB(`/discover/${type}?with_genres=${genreId}&page=${page}&sort_by=popularity.desc&language=en-US`);
+export async function getDiscoverByGenre(
+  type: 'tv' | 'movie', 
+  genreId?: number, 
+  page: number = 1, 
+  minRating?: number, 
+  sortBy: string = 'popularity.desc',
+  year?: number
+) {
+  let queryParams = `page=${page}&sort_by=${sortBy}&language=en-US`;
+  if (genreId && genreId > 0) queryParams += `&with_genres=${genreId}`;
+  if (minRating && minRating > 0) queryParams += `&vote_average.gte=${minRating}`;
+  if (year && year > 0) {
+    if (type === 'movie') queryParams += `&primary_release_year=${year}`;
+    else queryParams += `&first_air_date_year=${year}`;
+  }
+  return fetchTMDB(`/discover/${type}?${queryParams}`);
 }
+
 
 export async function getPersonDetails(personId: string | number) {
   return fetchTMDB(`/person/${personId}?append_to_response=combined_credits&language=en-US`);

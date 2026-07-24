@@ -13,6 +13,7 @@ import WatchProviders from '@/components/WatchProviders';
 import MovieSpecsCard from '@/components/MovieSpecsCard';
 import MovieCollectionCard from '@/components/MovieCollectionCard';
 import MovieReviewSection from '@/components/MovieReviewSection';
+import ShareStoryButton from '@/components/ShareStoryButton';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { getMovieDetails } from '@/lib/tmdb';
@@ -133,7 +134,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       )}
 
       {/* Action Buttons */}
-      <div className="px-4 mt-6">
+      <div className="px-4 mt-6 flex gap-3">
         <WatchlistButton show={{
           id: movie.id,
           name: movie.title,
@@ -146,6 +147,15 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
           genres: movie.genres || []
         }} />
         <SaveToListButton showId={movie.id} />
+        <ShareStoryButton 
+          title={movie.title} 
+          posterPath={movie.poster_path} 
+          backdropPath={movie.backdrop_path} 
+          type="movie"
+          rating={movie.vote_average}
+          year={movie.release_date?.split('-')[0]}
+          tagline={movie.tagline}
+        />
       </div>
 
       {/* Progress */}
