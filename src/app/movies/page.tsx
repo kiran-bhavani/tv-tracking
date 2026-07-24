@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, MoreVertical } from 'lucide-react';
+import { Check, MoreVertical, Dices } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
+import MovieRouletteModal from '@/components/MovieRouletteModal';
 
 const getImageUrl = (path: string | null, size: string = 'w500') => 
   path ? `https://image.tmdb.org/t/p/${size}${path}` : '/placeholder.png';
@@ -14,6 +15,7 @@ const getImageUrl = (path: string | null, size: string = 'w500') =>
 export default function MoviesWatchlistPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'watchlist'>('watchlist');
+  const [showRoulette, setShowRoulette] = useState(false);
   const watchlistMap = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
@@ -42,8 +44,12 @@ export default function MoviesWatchlistPage() {
       <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md pt-safe shadow-sm">
         <div className="px-4 py-2 flex justify-between items-center">
           <h1 className="text-xl font-bold text-foreground">Movies</h1>
-          <button className="text-foreground">
-            <MoreVertical className="w-6 h-6" />
+          <button 
+            onClick={() => setShowRoulette(true)}
+            className="flex items-center gap-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+          >
+            <Dices className="w-4 h-4" />
+            <span>Roulette</span>
           </button>
         </div>
         
@@ -175,6 +181,11 @@ export default function MoviesWatchlistPage() {
           </>
         )}
       </div>
+      <AnimatePresence>
+        {showRoulette && (
+          <MovieRouletteModal onClose={() => setShowRoulette(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

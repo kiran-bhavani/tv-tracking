@@ -10,6 +10,9 @@ import SaveToListButton from '@/components/SaveToListButton';
 import OverviewText from '@/components/OverviewText';
 import MediaGallery from '@/components/MediaGallery';
 import WatchProviders from '@/components/WatchProviders';
+import MovieSpecsCard from '@/components/MovieSpecsCard';
+import MovieCollectionCard from '@/components/MovieCollectionCard';
+import MovieReviewSection from '@/components/MovieReviewSection';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { getMovieDetails } from '@/lib/tmdb';
@@ -118,18 +121,24 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       {/* Progress */}
       <ShowProgress showId={movie.id} totalEpisodes={1} />
 
-      {/* Actions */}
-      <div className="px-4 mt-6 flex gap-3 mb-6">
-        <SaveToListButton showId={movie.id} />
-      </div>
-
       {/* Where to Watch */}
       <div className="px-4">
         <WatchProviders providersData={movie["watch/providers"]} countryCode="US" />
       </div>
 
+      {/* Box Office & Crew Specs */}
+      <MovieSpecsCard movie={movie} />
+
+      {/* User Review & Rating Journal */}
+      <MovieReviewSection movieId={movie.id} movieTitle={movie.title} />
+
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={movie.original_language} type="movie" title={movie.title} />
+
+      {/* Franchise Collection Progress */}
+      {movie.belongs_to_collection && (
+        <MovieCollectionCard collectionId={movie.belongs_to_collection.id} currentMovieId={movie.id} />
+      )}
 
       {/* Photos & Videos */}
       <MediaGallery 

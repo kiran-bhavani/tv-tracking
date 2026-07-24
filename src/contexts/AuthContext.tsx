@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (userSnap.exists()) {
             const data = userSnap.data();
             setOnboardingComplete(data.onboardingComplete || false);
-            useStore.getState().setStoreData(data.watchlist || {}, data.watchedEpisodes || {}, data.customLists || []);
+            useStore.getState().setStoreData(data.watchlist || {}, data.watchedEpisodes || {}, data.customLists || [], data.movieReviews || {});
           } else {
             // New user, push local data to cloud
             setOnboardingComplete(false);
@@ -64,6 +64,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               watchlist: state.watchlist,
               watchedEpisodes: state.watchedEpisodes,
               customLists: state.customLists,
+              movieReviews: state.movieReviews,
               onboardingComplete: false
             });
           }
@@ -87,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to Zustand store changes
     const unsubStore = useStore.subscribe((state, prevState) => {
       // Very basic check to avoid syncing if nothing changed
-      if (state.watchlist === prevState.watchlist && state.watchedEpisodes === prevState.watchedEpisodes && state.customLists === prevState.customLists) {
+      if (state.watchlist === prevState.watchlist && state.watchedEpisodes === prevState.watchedEpisodes && state.customLists === prevState.customLists && state.movieReviews === prevState.movieReviews) {
         return;
       }
       
@@ -96,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         watchlist: state.watchlist,
         watchedEpisodes: state.watchedEpisodes,
         customLists: state.customLists,
+        movieReviews: state.movieReviews,
         displayName: user.displayName || user.email?.split('@')[0] || 'User',
         photoURL: user.photoURL || ''
       }, { merge: true }).catch(err => console.error("Error syncing to Firestore:", err));

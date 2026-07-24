@@ -99,3 +99,8 @@ export async function getMovieDetails(movieId: string | number) {
 export async function getEpisodeDetails(seriesId: string | number, seasonNumber: string | number, episodeNumber: string | number) {
   return fetchTMDB(`/tv/${seriesId}/season/${seasonNumber}/episode/${episodeNumber}?append_to_response=videos,images,translations&include_image_language=en,null`);
 }
+
+export async function getCollectionDetails(collectionId: string | number) {
+  return fetchTMDB(`/collection/${collectionId}?language=en-US`);
+}
+

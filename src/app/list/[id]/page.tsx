@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import TopNav from '@/components/TopNav';
-import { Loader2, Share2 } from 'lucide-react';
+import { Loader2, Share2, Trophy } from 'lucide-react';
 import { getShowDetails } from '@/lib/tmdb';
 import ShowCard from '@/components/ShowCard';
 import { motion } from 'framer-motion';
@@ -84,13 +84,20 @@ export default function PublicListPage({ params }: { params: { id: string } }) {
 
       {/* Header */}
       <div className="px-6 pt-8 pb-6 border-b border-border bg-card/30">
-        <motion.h1 
+        <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-black text-foreground"
+          className="flex items-center gap-2"
         >
-          {listData.name}
-        </motion.h1>
+          <h1 className="text-3xl font-black text-foreground">
+            {listData.name}
+          </h1>
+          {listData.isRanked && (
+            <span className="bg-amber-400/20 text-amber-400 border border-amber-400/30 px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5" /> Ranked
+            </span>
+          )}
+        </motion.div>
         
         {listData.description && (
           <motion.p 
@@ -136,8 +143,26 @@ export default function PublicListPage({ params }: { params: { id: string } }) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 }}
+              className="relative"
             >
-              <ShowCard show={{...show, media_type: 'tv'}} />
+              <ShowCard show={{...show, media_type: show.title ? 'movie' : 'tv'}} />
+
+              {/* Rank Overlay Badge */}
+              {listData.isRanked && (
+                <div 
+                  className={`absolute top-2 left-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shadow-xl border ${
+                    idx === 0 
+                      ? 'bg-amber-400 text-black border-amber-200' 
+                      : idx === 1 
+                      ? 'bg-slate-300 text-black border-white' 
+                      : idx === 2 
+                      ? 'bg-amber-700 text-white border-amber-500' 
+                      : 'bg-black/80 text-white border-white/20'
+                  }`}
+                >
+                  #{idx + 1}
+                </div>
+              )}
             </motion.div>
           ))
         )}

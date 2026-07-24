@@ -19,17 +19,26 @@ export interface WatchedEpisode {
   episode: number;
 }
 
+export interface MovieReview {
+  rating: number; // 0.5 to 5
+  review?: string;
+  watchedDate: string; // ISO string
+  isRewatch?: boolean;
+}
+
 export interface CustomList {
   id: string;
   name: string;
   description: string;
   shows: number[]; // Array of show/movie IDs
+  isRanked?: boolean;
 }
 
 interface AppState {
   watchlist: Record<number, WatchlistShow>;
   watchedEpisodes: Record<number, WatchedEpisode[]>; // showId -> array of episode objects
   customLists: CustomList[];
+  movieReviews: Record<number, MovieReview>; // movieId -> MovieReview
   
   addToWatchlist: (show: WatchlistShow) => void;
   removeFromWatchlist: (showId: number) => void;
@@ -38,13 +47,22 @@ interface AppState {
   markSeasonAsWatched: (showId: number, seasonEpisodes: WatchedEpisode[]) => void;
   markShowAsFinished: (showId: number, allEpisodes: WatchedEpisode[]) => void;
   
-  createList: (name: string, description: string, shows?: number[]) => void;
-  updateList: (listId: string, name: string, description: string, shows?: number[]) => void;
+  saveMovieReview: (movieId: number, reviewData: MovieReview) => void;
+  deleteMovieReview: (movieId: number) => void;
+  
+  createList: (name: string, description: string, shows?: number[], isRanked?: boolean) => void;
+  updateList: (listId: string, name: string, description: string, shows?: number[], isRanked?: boolean) => void;
   deleteList: (listId: string) => void;
   addToList: (listId: string, showId: number) => void;
   removeFromList: (listId: string, showId: number) => void;
+  toggleListRanked: (listId: string) => void;
   
-  setStoreData: (watchlist: Record<number, WatchlistShow>, watchedEpisodes: Record<number, WatchedEpisode[]>, customLists?: CustomList[]) => void;
+  setStoreData: (
+    watchlist: Record<number, WatchlistShow>, 
+    watchedEpisodes: Record<number, WatchedEpisode[]>, 
+    customLists?: CustomList[],
+    movieReviews?: Record<number, MovieReview>
+  ) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -53,6 +71,7 @@ export const useStore = create<AppState>()(
       watchlist: {},
       watchedEpisodes: {},
       customLists: [],
+      movieReviews: {},
 
       addToWatchlist: (show) => set((state) => ({
         watchlist: { ...state.watchlist, [show.id]: show },
@@ -84,10 +103,8 @@ export const useStore = create<AppState>()(
         const showEpisodes = (state.watchedEpisodes[showId] || []).filter(e => typeof e === 'object' && e !== null) as WatchedEpisode[];
         const existingIds = new Set(showEpisodes.map(e => e.id));
         
-        // Find all episodes that are before or equal to the current one
-        const previousEpisodes = allEpisodes.filter(e => 
-          e.season < currentSeason || 
-          (e.season === currentSeason && e.episode <= currentEpisode)
+        const previousEpisodes = allEpisodes.filter(ep => 
+          ep.season < currentSeason || (ep.season === currentSeason && ep.episode <= currentEpisode)
         );
 
         const newWatched = [...showEpisodes];
@@ -143,19 +160,38 @@ export const useStore = create<AppState>()(
         };
       }),
 
-      createList: (name, description, shows = []) => set((state) => ({
+      saveMovieReview: (movieId, reviewData) => set((state) => ({
+        movieReviews: {
+          ...state.movieReviews,
+          [movieId]: reviewData
+        }
+      })),
+
+      deleteMovieReview: (movieId) => set((state) => {
+        const newReviews = { ...state.movieReviews };
+        delete newReviews[movieId];
+        return { movieReviews: newReviews };
+      }),
+
+      createList: (name, description, shows = [], isRanked = false) => set((state) => ({
         customLists: [...state.customLists, {
           id: crypto.randomUUID(),
           name,
           description,
-          shows
+          shows,
+          isRanked
         }]
       })),
 
-
-      updateList: (listId, name, description, shows) => set((state) => ({
+      updateList: (listId, name, description, shows, isRanked) => set((state) => ({
         customLists: state.customLists.map(list => 
-          list.id === listId ? { ...list, name, description, ...(shows ? { shows } : {}) } : list
+          list.id === listId ? { 
+            ...list, 
+            name, 
+            description, 
+            ...(shows ? { shows } : {}),
+            ...(isRanked !== undefined ? { isRanked } : {})
+          } : list
         )
       })),
 
@@ -181,7 +217,18 @@ export const useStore = create<AppState>()(
         })
       })),
 
-      setStoreData: (watchlist, watchedEpisodes, customLists = []) => set({ watchlist, watchedEpisodes, customLists })
+      toggleListRanked: (listId) => set((state) => ({
+        customLists: state.customLists.map(list => 
+          list.id === listId ? { ...list, isRanked: !list.isRanked } : list
+        )
+      })),
+
+      setStoreData: (watchlist, watchedEpisodes, customLists = [], movieReviews = {}) => set({ 
+        watchlist, 
+        watchedEpisodes, 
+        customLists,
+        movieReviews
+      })
     }),
     {
       name: 'tvtime-storage', // key in local storage

@@ -67,6 +67,7 @@ export default function ManageListModal({ list, onClose, onShare }: ManageListMo
   const isCreateMode = !list;
   const [name, setName] = useState(list?.name || '');
   const [description, setDescription] = useState(list?.description || '');
+  const [isRanked, setIsRanked] = useState(list?.isRanked || false);
   
   // Holds full TMDB objects for rendering cards
   const [showsData, setShowsData] = useState<any[]>([]);
@@ -164,9 +165,9 @@ export default function ManageListModal({ list, onClose, onShare }: ManageListMo
     const showIds = showsData.map(s => s.id);
     
     if (isCreateMode) {
-      createList(name.trim(), description.trim(), showIds);
+      createList(name.trim(), description.trim(), showIds, isRanked);
     } else {
-      updateList(list.id, name.trim(), description.trim(), showIds);
+      updateList(list.id, name.trim(), description.trim(), showIds, isRanked);
     }
     
     onClose();
@@ -239,26 +240,39 @@ export default function ManageListModal({ list, onClose, onShare }: ManageListMo
             
             {/* Edit Details */}
             <div className="space-y-4 mb-8">
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">List Name</label>
-                <input 
-                  type="text" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all"
-                  placeholder="E.g. Sci-Fi Masterpieces"
-                  autoFocus={isCreateMode}
-                />
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">List Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="e.g., Favorite Movies of 2026"
+                className="w-full bg-muted/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider block mb-1.5">Description (Optional)</label>
+              <textarea
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Add some context about this list..."
+                rows={2}
+                className="w-full bg-muted/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-accent transition-colors resize-none"
+              />
+            </div>
+
+            <label className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-white/10 cursor-pointer group select-none">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-foreground">Ranked List (Show #1, #2, #3 badges)</span>
               </div>
-              <div>
-                <label className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 block">Description (Optional)</label>
-                <textarea 
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full bg-muted border border-border rounded-xl px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-accent transition-all resize-none h-20"
-                  placeholder="What is this list about?"
-                />
-              </div>
+              <input
+                type="checkbox"
+                checked={isRanked}
+                onChange={e => setIsRanked(e.target.checked)}
+                className="w-4 h-4 rounded border-white/20 accent-accent"
+              />
+            </label>
             </div>
 
             {/* Live Search */}
