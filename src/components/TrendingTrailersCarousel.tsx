@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { Play, Film, Sparkles } from 'lucide-react';
+import { Play, Film } from 'lucide-react';
 import { getImageUrl } from '@/lib/utils';
 import VideoPlayerModal from './VideoPlayerModal';
-import { cacheManager } from '@/lib/cache';
+import { fetchTrendingTrailersAction } from '@/app/actions/tmdb';
 
-const FEATURED_TRAILERS = [
+const FALLBACK_TRAILERS = [
   {
     id: 157336,
     title: 'Interstellar',
@@ -44,20 +43,33 @@ const FEATURED_TRAILERS = [
     videoKey: 'b9EkMc79ZSU',
     backdrop_path: '/56v2KjBlU4XaOv9rVYEQypROD7P.jpg',
     poster_path: '/49WJfeN0moxb9IPfGn88qMG4d2m.jpg'
-  },
-  {
-    id: 155,
-    title: 'The Dark Knight',
-    media_type: 'movie',
-    type: 'Official Trailer',
-    videoKey: 'EXeTwQWrcwY',
-    backdrop_path: '/nMK2819zaDFmMyyGLpE9XxqFiR.jpg',
-    poster_path: '/qJ2tW6WMUDux911r6m7haRef0WH.jpg'
   }
 ];
 
 export default function TrendingTrailersCarousel() {
+  const [trailers, setTrailers] = useState<any[]>(FALLBACK_TRAILERS);
+  const [loading, setLoading] = useState(true);
   const [selectedVideo, setSelectedVideo] = useState<{ key: string; title: string } | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadTrailers() {
+      try {
+        const dynamicTrailers = await fetchTrendingTrailersAction();
+        if (isMounted && dynamicTrailers && dynamicTrailers.length > 0) {
+          setTrailers(dynamicTrailers);
+        }
+      } catch (err) {
+        console.error("Failed to load dynamic trailers:", err);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+
+    loadTrailers();
+    return () => { isMounted = false; };
+  }, []);
 
   return (
     <div className="flex flex-col gap-3 my-4">
@@ -71,18 +83,24 @@ export default function TrendingTrailersCarousel() {
       </div>
 
       <div className="flex overflow-x-auto gap-4 px-4 pb-2 snap-x snap-mandatory hide-scrollbar">
-        {FEATURED_TRAILERS.map((item) => (
+        {trailers.map((item) => (
           <div
-            key={item.id}
+            key={`${item.media_type}_${item.id}`}
             onClick={() => setSelectedVideo({ key: item.videoKey, title: item.title })}
             className="flex-shrink-0 w-64 h-36 relative rounded-2xl overflow-hidden bg-muted border border-border/80 shadow-lg cursor-pointer group snap-start"
           >
-            <Image
-              src={getImageUrl(item.backdrop_path, 'w500')}
-              alt={item.title}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-            />
+            {item.backdrop_path ? (
+              <Image
+                src={getImageUrl(item.backdrop_path, 'w500')}
+                alt={item.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-500"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-xs text-muted-foreground">
+                {item.title}
+              </div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
             {/* Play Button Overlay */}
