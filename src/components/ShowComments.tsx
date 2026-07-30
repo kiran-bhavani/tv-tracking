@@ -140,7 +140,7 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
     const unsubscribe = onSnapshot(q, (snapshot) => {
       firestoreComments = snapshot.docs
         .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter((c: any) => !c.seasonNumber);
+        .filter((c: any) => !c.seasonNumber || c.seasonNumber === 0);
       combine();
     }, (err) => {
       console.error("Firestore show comments error:", err);
@@ -157,8 +157,8 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
     try {
       await addDoc(collection(db, 'comments'), {
         showId: id,
-        seasonNumber: null,
-        episodeNumber: null,
+        seasonNumber: 0,
+        episodeNumber: 0,
         userId: user.uid,
         userDisplayName: user.displayName || user.email?.split('@')[0] || 'User',
         text: newComment.trim().slice(0, 500),
