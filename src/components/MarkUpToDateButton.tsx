@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { CheckCheck, Loader2, AlertCircle } from "lucide-react";
 import { useStore, WatchedEpisode } from "@/store/useStore";
 import { getSeasonDetails } from "@/lib/tmdb";
 import { useState, useEffect } from "react";
@@ -102,9 +102,10 @@ export default function MarkUpToDateButton({ showId, seasons }: { showId: number
         onClick={() => setShowConfirm(true)}
         disabled={isLoading}
         className="w-14 flex-shrink-0 flex items-center justify-center bg-card border border-border rounded-2xl shadow-xl hover:bg-muted/80 transition-colors"
-        aria-label="Mark show as up to date"
+        aria-label="Mark all episodes up to date"
+        title="Mark All Episodes Up to Date"
       >
-        {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-accent" /> : <CheckCircle2 className="w-6 h-6 text-accent" />}
+        {isLoading ? <Loader2 className="w-6 h-6 animate-spin text-accent" /> : <CheckCheck className="w-6 h-6 text-accent" />}
       </button>
 
       <AnimatePresence>

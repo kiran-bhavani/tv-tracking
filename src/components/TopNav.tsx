@@ -23,9 +23,6 @@ export default function TopNav({ title = "BingePulse" }: { title?: string }) {
           <Link href="/community" className="text-muted-foreground hover:text-accent transition" title="Community Feed">
             <Users className="w-5 h-5" />
           </Link>
-          <Link href="/calendar" className="text-muted-foreground hover:text-accent transition" title="Release Calendar">
-            <Calendar className="w-5 h-5" />
-          </Link>
           <Link href="/notifications" className="text-muted-foreground hover:text-foreground transition relative">
             <Bell className="w-5 h-5" />
             <span className="absolute top-0 right-0 w-2 h-2 bg-accent rounded-full border border-background"></span>

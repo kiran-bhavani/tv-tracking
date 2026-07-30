@@ -40,7 +40,9 @@ function CommentItem({ comment }: { comment: any }) {
             {comment.timestamp ? (typeof comment.timestamp.toDate === 'function' ? formatDistanceToNow(comment.timestamp.toDate(), { addSuffix: true }) : 'recently') : 'just now'}
           </span>
           {comment.isSpoiler && (
-            <span className="text-[10px] uppercase font-bold tracking-wider text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded">Spoiler</span>
+            <span className="text-[10px] uppercase font-extrabold tracking-wider text-amber-400 bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-md flex items-center gap-1">
+              <EyeOff className="w-3 h-3" /> Spoiler
+            </span>
           )}
         </div>
         

@@ -1,6 +1,6 @@
 "use client";
 
-import { Check } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import { useStore, WatchedEpisode } from '@/store/useStore';
 import { useEffect, useState } from 'react';
 import { motion, useAnimation, PanInfo } from 'framer-motion';
@@ -114,12 +114,15 @@ export default function EpisodeRow({ showId, episode, allEpisodes, onClick }: Ep
 
           <button
             onClick={handleToggle}
-            className={`w-12 h-12 rounded-full flex justify-center items-center flex-shrink-0 transition-colors shadow-lg ${
-              !mounted ? 'bg-muted' :
-              isWatched ? 'bg-accent text-accent-foreground' : 'bg-muted text-foreground hover:bg-muted/80 border border-border'
+            title={isWatched ? "Watched (Click to unmark)" : "Mark episode as watched"}
+            className={`w-12 h-12 rounded-full flex justify-center items-center flex-shrink-0 transition-all shadow-lg active:scale-95 ${
+              !mounted ? 'bg-muted text-muted-foreground' :
+              isWatched 
+                ? 'bg-emerald-500 text-black shadow-emerald-500/20' 
+                : 'bg-muted text-foreground hover:bg-emerald-500/15 hover:text-emerald-400 hover:border-emerald-500/40 border border-border'
             }`}
           >
-            <Check className="w-6 h-6" />
+            {isWatched ? <Check className="w-6 h-6 stroke-[3]" /> : <Plus className="w-6 h-6" />}
           </button>
         </motion.div>
       </div>

@@ -101,10 +101,11 @@ export default function UpNextDeck() {
 
                   <button
                     onClick={() => handleMarkWatched({ show, season, episode, totalEps })}
-                    className="w-full bg-accent/15 hover:bg-accent text-accent hover:text-accent-foreground border border-accent/30 font-bold text-xs py-1.5 rounded-xl transition-all flex items-center justify-center gap-1 mt-2"
+                    className="w-full bg-emerald-500/20 hover:bg-emerald-500 text-emerald-400 hover:text-black border border-emerald-500/30 font-bold text-xs py-1.5 rounded-xl transition-all flex items-center justify-center gap-1 mt-2 shadow-sm"
+                    title={`Mark S${String(season).padStart(2,'0')}E${String(episode).padStart(2,'0')} as watched`}
                   >
                     <Check className="w-3.5 h-3.5 stroke-[3]" />
-                    <span>Watched</span>
+                    <span>+ Mark Watched</span>
                   </button>
                 </div>
               </motion.div>

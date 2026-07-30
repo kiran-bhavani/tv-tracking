@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ChevronDown, ChevronUp, Check, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Check, CheckCheck, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getSeasonDetails } from "@/lib/tmdb";
 import { getImageUrl } from "@/lib/utils";
@@ -127,17 +127,17 @@ export default function SeasonAccordion({ showId, seasons }: SeasonAccordionProp
                 )}
               </div>
               
-              {/* Check All Button */}
+              {/* Check All Season Button */}
               <button 
                 onClick={(e) => handleMarkSeasonWatched(e, season.season_number)}
-                className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors mr-2 ${
+                title={isFullyWatched ? "Season fully watched (Click to unmark)" : `Mark Season ${season.season_number} as watched`}
+                className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all active:scale-95 mr-2 ${
                   isFullyWatched 
-                    ? 'bg-accent border-accent text-accent-foreground' 
-                    : 'bg-background border-border text-muted-foreground hover:text-accent-foreground hover:bg-accent/50'
+                    ? 'bg-emerald-500 border-emerald-500 text-black shadow-md shadow-emerald-500/20' 
+                    : 'bg-card border-border text-foreground hover:bg-emerald-500/20 hover:text-emerald-400 hover:border-emerald-500/40'
                 }`}
-                aria-label="Mark season as watched"
               >
-                <Check className="w-5 h-5" />
+                <CheckCheck className="w-5 h-5 stroke-[2.5]" />
               </button>
 
               {/* Chevron */}
