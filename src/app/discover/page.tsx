@@ -6,7 +6,7 @@ import ForYouRecommendations from '@/components/ForYouRecommendations';
 import InfiniteDiscoverRows from '@/components/InfiniteDiscoverRows';
 import TrendingTrailersCarousel from '@/components/TrendingTrailersCarousel';
 
-export const revalidate = 3600; // Revalidate every hour
+export const revalidate = 86400; // Revalidate Discover page once every 24 hours
 
 export default async function DiscoverPage({ searchParams }: { searchParams: Promise<{ type?: string }> }) {
   const resolvedSearchParams = await searchParams;

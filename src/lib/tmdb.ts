@@ -9,7 +9,7 @@ const fetchOptions = {
     accept: 'application/json',
     Authorization: `Bearer ${TMDB_API_TOKEN}`,
   },
-  next: { revalidate: 3600 } // Cache heavily on the server for 1 hour to reduce TMDB hits
+  next: { revalidate: 86400 } // Cache on Vercel server for 24 hours to minimize function invocations
 };
 
 /**
