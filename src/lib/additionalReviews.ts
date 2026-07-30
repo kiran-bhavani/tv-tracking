@@ -71,44 +71,13 @@ export async function fetchRottenTomatoesReviews(title: string): Promise<ExtraRe
     ]
   };
 
-  if (RT_DATABASE[title]) {
-    return RT_DATABASE[title];
-  }
-
-  return [
-    {
-      id: `rt_gen_${title}`,
-      author: 'Rotten Tomatoes Certified Fresh',
-      source: 'Rotten Tomatoes',
-      text: `Critics Consensus: "${title}" delivers top-tier writing, compelling performances, and high rewatch value.`,
-      rating: 9,
-      isSpoiler: false
-    }
-  ];
+  return RT_DATABASE[title] || [];
 }
 
 export async function fetchLetterboxdReviews(title: string): Promise<ExtraReview[]> {
-  return [
-    {
-      id: `lb_${title}`,
-      author: 'CinemaJournal_LB',
-      source: 'Letterboxd',
-      text: `Logged on Letterboxd ★★★★½: A masterclass in visual storytelling and atmospheric sound design.`,
-      rating: 9,
-      isSpoiler: false
-    }
-  ];
+  return [];
 }
 
 export async function fetchDoubanReviews(title: string): Promise<ExtraReview[]> {
-  return [
-    {
-      id: `douban_${title}`,
-      author: 'DramaEnthusiast_DB',
-      source: 'Douban',
-      text: `Douban Score 8.8/10: Immersive plot direction and incredible lead performance throughout.`,
-      rating: 9,
-      isSpoiler: false
-    }
-  ];
+  return [];
 }

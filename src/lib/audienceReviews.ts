@@ -49,7 +49,6 @@ export async function fetchRedditComments(title: string, season?: number, episod
 }
 
 export async function fetchMetacriticCriticReviews(title: string, type: 'show' | 'movie'): Promise<AudienceComment[]> {
-  // Top verified critic quotes for popular shows & movies
   const CRITIC_QUOTES: Record<string, AudienceComment[]> = {
     'Inception': [
       {
@@ -86,20 +85,5 @@ export async function fetchMetacriticCriticReviews(title: string, type: 'show' |
     ]
   };
 
-  if (CRITIC_QUOTES[title]) {
-    return CRITIC_QUOTES[title];
-  }
-
-  // Fallback critic review for any show/movie
-  return [
-    {
-      id: `meta_gen_${title}`,
-      author: 'Entertainment Weekly (Critic)',
-      source: 'Metacritic',
-      text: `"${title}" delivers exceptional performances and high-stakes drama that keeps audiences hooked.`,
-      rating: 9,
-      isSpoiler: false,
-      score: 85
-    }
-  ];
+  return CRITIC_QUOTES[title] || [];
 }
