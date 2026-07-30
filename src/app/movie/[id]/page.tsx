@@ -180,11 +180,6 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
       {/* Trivia & Iconic Quotes */}
       <TriviaQuotesCard title={movie.title} type="movie" tagline={movie.tagline} />
 
-      {/* Trakt, Simkl & Serializd Community Shouts */}
-      <div className="px-4">
-        <TraktShoutsSection type="movie" title={movie.title} id={movie.id} />
-      </div>
-
       {/* Franchise Collection Progress */}
       {movie.belongs_to_collection && (
         <MovieCollectionCard collectionId={movie.belongs_to_collection.id} currentMovieId={movie.id} />

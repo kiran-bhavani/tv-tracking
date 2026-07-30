@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Send, User, MessageSquare, Image as ImageIcon, EyeOff, Eye, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
+import { fetchSocialComments } from '@/lib/socialComments';
 
 const REACTION_GIFS = [
   "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif",
@@ -23,14 +24,18 @@ function CommentItem({ comment }: { comment: any }) {
   
   return (
     <div className="flex gap-3 relative">
-      <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0 mt-1 z-10 relative">
-        <User className="w-4 h-4 text-muted-foreground" />
+      <div className="w-8 h-8 rounded-full bg-muted border border-border flex items-center justify-center flex-shrink-0 mt-1 z-10 relative overflow-hidden">
+        {comment.avatar ? (
+          <img src={comment.avatar} alt={comment.userDisplayName} className="w-full h-full object-cover" />
+        ) : (
+          <User className="w-4 h-4 text-muted-foreground" />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline gap-2 mb-1">
           <span className="font-bold text-foreground text-sm">{comment.userDisplayName}</span>
           <span className="text-[10px] text-muted-foreground">
-            {comment.timestamp ? formatDistanceToNow(comment.timestamp.toDate(), { addSuffix: true }) : 'just now'}
+            {comment.timestamp ? (typeof comment.timestamp.toDate === 'function' ? formatDistanceToNow(comment.timestamp.toDate(), { addSuffix: true }) : 'recently') : 'just now'}
           </span>
           {comment.isSpoiler && (
             <span className="text-[10px] uppercase font-bold tracking-wider text-red-500 bg-red-500/10 px-1.5 py-0.5 rounded">Spoiler</span>
@@ -70,9 +75,10 @@ interface EpisodeCommentsProps {
   showId: number;
   seasonNumber: number;
   episodeNumber: number;
+  showTitle?: string;
 }
 
-export default function EpisodeComments({ showId, seasonNumber, episodeNumber }: EpisodeCommentsProps) {
+export default function EpisodeComments({ showId, seasonNumber, episodeNumber, showTitle = 'Show' }: EpisodeCommentsProps) {
   const { user } = useAuth();
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState('');
@@ -83,6 +89,34 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
   const [cooldown, setCooldown] = useState(false);
 
   useEffect(() => {
+    let firestoreComments: any[] = [];
+    let socialComments: any[] = [];
+
+    async function loadSocial() {
+      try {
+        const socialData = await fetchSocialComments('episode', showTitle, showId, seasonNumber, episodeNumber);
+        socialComments = socialData.map(s => ({
+          id: s.id,
+          userDisplayName: s.author,
+          avatar: s.avatar,
+          text: s.comment,
+          isSpoiler: s.isSpoiler,
+          timestamp: null
+        }));
+        combineComments();
+      } catch (err) {
+        console.error("Social comments load error", err);
+      }
+    }
+
+    function combineComments() {
+      const all = [...firestoreComments, ...socialComments];
+      setComments(all);
+      setLoading(false);
+    }
+
+    loadSocial();
+
     const q = query(
       collection(db, 'comments'),
       where('showId', '==', showId),
@@ -92,20 +126,19 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber }:
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const fetchedComments = snapshot.docs.map(doc => ({
+      firestoreComments = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setComments(fetchedComments);
-      setLoading(false);
+      combineComments();
     }, (error) => {
-      // It might fail on first run due to missing indexes, but we can catch it here
-      console.error("Error fetching comments. Missing index?", error);
+      console.error("Error fetching comments", error);
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [showId, seasonNumber, episodeNumber]);
+  }, [showId, seasonNumber, episodeNumber, showTitle]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

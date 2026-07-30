@@ -292,20 +292,12 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
               cast={episode.guest_stars} 
             />
 
-            {/* Trakt, Simkl & Serializd Community Shouts */}
-            <TraktShoutsSection 
-              type="episode" 
-              title={showName} 
-              id={showId} 
-              season={seasonNumber} 
-              episode={episode.episode_number} 
-            />
-
-            {/* In-App Discussion / Comments */}
+            {/* In-App Discussion / Comments (Includes Trakt, Simkl & Serializd) */}
             <EpisodeComments 
               showId={showId} 
               seasonNumber={seasonNumber} 
               episodeNumber={episode.episode_number} 
+              showTitle={showName}
             />
 
             {(episodeDetails?.videos?.results?.length > 0 || episodeDetails?.images?.stills?.length > 0) && (

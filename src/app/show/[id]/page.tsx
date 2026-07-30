@@ -223,11 +223,6 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
       {/* Trivia & Iconic Quotes */}
       <TriviaQuotesCard title={show.name} type="show" />
 
-      {/* Trakt, Simkl & Serializd Community Shouts */}
-      <div className="px-4">
-        <TraktShoutsSection type="show" title={show.name} id={show.id} />
-      </div>
-
       {/* Photos & Videos */}
       <MediaGallery 
         videos={show.videos?.results} 
