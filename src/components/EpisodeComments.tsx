@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { fetchSocialComments } from '@/lib/socialComments';
 import { fetchRedditComments, fetchMetacriticCriticReviews } from '@/lib/audienceReviews';
+import { fetchJikanAnimeReviews, fetchRottenTomatoesReviews, fetchLetterboxdReviews, fetchDoubanReviews } from '@/lib/additionalReviews';
 
 const REACTION_GIFS = [
   "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif",
@@ -95,10 +96,14 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber, s
 
     async function loadSocial() {
       try {
-        const [socialData, redditData, criticData] = await Promise.all([
+        const [socialData, redditData, criticData, malData, rtData, lbData, dbData] = await Promise.all([
           fetchSocialComments('episode', showTitle, showId, seasonNumber, episodeNumber),
           fetchRedditComments(showTitle, seasonNumber, episodeNumber),
-          fetchMetacriticCriticReviews(showTitle, 'show')
+          fetchMetacriticCriticReviews(showTitle, 'show'),
+          fetchJikanAnimeReviews(showTitle),
+          fetchRottenTomatoesReviews(showTitle),
+          fetchLetterboxdReviews(showTitle),
+          fetchDoubanReviews(showTitle)
         ]);
 
         const mappedSocial = socialData.map(s => ({
@@ -128,7 +133,51 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber, s
           timestamp: null
         }));
 
-        socialComments = [...mappedSocial, ...mappedReddit, ...mappedCritics];
+        const mappedMal = malData.map(m => ({
+          id: m.id,
+          userDisplayName: `${m.author} (MyAnimeList)`,
+          avatar: m.avatar,
+          text: m.text,
+          isSpoiler: m.isSpoiler,
+          timestamp: null
+        }));
+
+        const mappedRt = rtData.map(rt => ({
+          id: rt.id,
+          userDisplayName: `${rt.author}`,
+          avatar: undefined,
+          text: rt.text,
+          isSpoiler: rt.isSpoiler,
+          timestamp: null
+        }));
+
+        const mappedLb = lbData.map(l => ({
+          id: l.id,
+          userDisplayName: `${l.author}`,
+          avatar: undefined,
+          text: l.text,
+          isSpoiler: l.isSpoiler,
+          timestamp: null
+        }));
+
+        const mappedDb = dbData.map(d => ({
+          id: d.id,
+          userDisplayName: `${d.author}`,
+          avatar: undefined,
+          text: d.text,
+          isSpoiler: d.isSpoiler,
+          timestamp: null
+        }));
+
+        socialComments = [
+          ...mappedSocial,
+          ...mappedReddit,
+          ...mappedCritics,
+          ...mappedMal,
+          ...mappedRt,
+          ...mappedLb,
+          ...mappedDb
+        ];
         combineComments();
       } catch (err) {
         console.error("Social comments load error", err);
