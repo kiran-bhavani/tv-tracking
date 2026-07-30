@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search as SearchIcon, X, User } from 'lucide-react';
 import { searchMulti } from '@/lib/tmdb';
 import ShowCard from '@/components/ShowCard';
@@ -9,11 +10,28 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 
-export default function SearchPage() {
-  const [query, setQuery] = useState('');
+function SearchContent() {
+  const searchParams = useSearchParams();
+  const initialQ = searchParams?.get('q') || '';
+  const initialType = searchParams?.get('type') || '';
+
+  const [query, setQuery] = useState(initialQ);
   const [results, setResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const debouncedQuery = useDebounce(query, 500);
+  const debouncedQuery = useDebounce(query, 300);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus input on page mount so mobile keyboard opens immediately
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  // Update query if URL search parameter changes
+  useEffect(() => {
+    if (initialQ) {
+      setQuery(initialQ);
+    }
+  }, [initialQ]);
 
   useEffect(() => {
     if (debouncedQuery.trim() === '') {
@@ -25,8 +43,15 @@ export default function SearchPage() {
       setIsSearching(true);
       try {
         const data = await searchMulti(debouncedQuery);
-        // Include tv, movie, and person
-        setResults((data.results || []).filter((item: any) => item.media_type === 'tv' || item.media_type === 'movie' || item.media_type === 'person'));
+        let items = data.results || [];
+        if (initialType === 'tv') {
+          items = items.filter((item: any) => item.media_type === 'tv');
+        } else if (initialType === 'movie') {
+          items = items.filter((item: any) => item.media_type === 'movie');
+        } else {
+          items = items.filter((item: any) => item.media_type === 'tv' || item.media_type === 'movie' || item.media_type === 'person');
+        }
+        setResults(items);
       } catch (error) {
         console.error("Search failed", error);
       } finally {
@@ -35,24 +60,30 @@ export default function SearchPage() {
     };
 
     fetchResults();
-  }, [debouncedQuery]);
+  }, [debouncedQuery, initialType]);
 
   return (
     <div className="min-h-screen bg-background pt-safe pb-24">
-      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-md px-4 py-4 border-b border-border">
-        <div className="relative">
-          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md px-4 py-4 border-b border-border">
+        <div className="relative flex items-center">
+          <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
           <input
+            ref={inputRef}
             type="text"
             placeholder="Search shows, movies, actors, directors..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-muted border border-border rounded-full py-3 pl-10 pr-10 text-foreground placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition"
+            autoFocus
+            className="w-full bg-muted border border-border rounded-full py-3 pl-11 pr-10 text-foreground placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition"
           />
           {query && (
             <button
-              onClick={() => setQuery('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onClick={() => {
+                setQuery('');
+                inputRef.current?.focus();
+              }}
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
+              title="Clear search"
             >
               <X className="w-5 h-5" />
             </button>
@@ -63,7 +94,7 @@ export default function SearchPage() {
       <div className="px-4 py-6">
         {isSearching ? (
           <div className="flex justify-center py-10">
-            <div className="w-8 h-8 border-2 bg-accent border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : results.length > 0 ? (
           <div className="grid grid-cols-[repeat(auto-fill,minmax(128px,1fr))] gap-4 justify-items-center">
@@ -111,3 +142,10 @@ export default function SearchPage() {
   );
 }
 
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background pt-safe flex justify-center py-10 text-muted-foreground">Loading search...</div>}>
+      <SearchContent />
+    </Suspense>
+  );
+}
