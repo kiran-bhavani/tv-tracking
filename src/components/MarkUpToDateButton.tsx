@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCheck, Loader2, AlertCircle } from "lucide-react";
+import { CheckCheck, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { useStore, WatchedEpisode } from "@/store/useStore";
 import { getSeasonDetails } from "@/lib/tmdb";
 import { useState, useEffect } from "react";
