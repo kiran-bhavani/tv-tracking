@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from 'react';
 import { User, onAuthStateChanged, updateProfile } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
@@ -81,29 +81,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // Sync mutations back to Firestore
+  // Sync mutations back to Firestore (debounced 1s to avoid rapid writes)
   useEffect(() => {
     if (!user) return;
-    
-    // Subscribe to Zustand store changes
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
     const unsubStore = useStore.subscribe((state, prevState) => {
-      // Very basic check to avoid syncing if nothing changed
-      if (state.watchlist === prevState.watchlist && state.watchedEpisodes === prevState.watchedEpisodes && state.customLists === prevState.customLists && state.movieReviews === prevState.movieReviews) {
-        return;
-      }
-      
-      const userRef = doc(db, 'users', user.uid);
-      setDoc(userRef, {
-        watchlist: state.watchlist,
-        watchedEpisodes: state.watchedEpisodes,
-        customLists: state.customLists,
-        movieReviews: state.movieReviews,
-        displayName: user.displayName || user.email?.split('@')[0] || 'User',
-        photoURL: user.photoURL || ''
-      }, { merge: true }).catch(err => console.error("Error syncing to Firestore:", err));
+      // Skip if nothing relevant changed
+      if (
+        state.watchlist === prevState.watchlist &&
+        state.watchedEpisodes === prevState.watchedEpisodes &&
+        state.customLists === prevState.customLists &&
+        state.movieReviews === prevState.movieReviews
+      ) return;
+
+      // Cancel the previous pending write and reschedule
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      debounceTimer = setTimeout(() => {
+        const latestState = useStore.getState();
+        const userRef = doc(db, 'users', user.uid);
+        setDoc(userRef, {
+          watchlist: latestState.watchlist,
+          watchedEpisodes: latestState.watchedEpisodes,
+          customLists: latestState.customLists,
+          movieReviews: latestState.movieReviews,
+          displayName: user.displayName || user.email?.split('@')[0] || 'User',
+          photoURL: user.photoURL || ''
+        }, { merge: true }).catch(err => console.error("Error syncing to Firestore:", err));
+      }, 1000); // 1 second debounce
     });
 
-    return () => unsubStore();
+    return () => {
+      unsubStore();
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
   }, [user]);
 
   const completeOnboarding = async (profileData?: OnboardingProfileData) => {

@@ -34,7 +34,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       </div>
       
       {/* Toggle */}
-      <div className="px-4 mt-2 mb-4 flex justify-center">
+      <div className="px-4 mt-2 mb-3 flex justify-center">
         <div className="bg-muted p-1 rounded-full flex gap-1">
           <Link href="/discover?type=tv" className={`px-6 py-2 rounded-full font-bold text-sm transition-colors ${!isMovie ? 'bg-accent text-accent-foreground' : 'text-foreground'}`}>
             TV Shows
@@ -42,6 +42,28 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
           <Link href="/discover?type=movie" className={`px-6 py-2 rounded-full font-bold text-sm transition-colors ${isMovie ? 'bg-accent text-accent-foreground' : 'text-foreground'}`}>
             Movies
           </Link>
+        </div>
+      </div>
+
+      {/* Streaming Service Provider Chips */}
+      <div className="px-4 mb-4">
+        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Watch Providers</p>
+        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
+          {[
+            { name: 'Netflix', query: 'netflix' },
+            { name: 'HBO Max', query: 'max' },
+            { name: 'Disney+', query: 'disney' },
+            { name: 'Apple TV+', query: 'apple' },
+            { name: 'Prime Video', query: 'amazon' }
+          ].map(p => (
+            <Link
+              key={p.name}
+              href={`/search?q=${p.query}&type=${isMovie ? 'movie' : 'tv'}`}
+              className="px-3.5 py-1.5 bg-card hover:bg-accent/15 border border-border hover:border-accent/30 text-xs font-bold text-foreground rounded-full flex-shrink-0 transition-colors"
+            >
+              {p.name}
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -56,7 +78,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         <section>
           <div className="px-4 mb-3 flex justify-between items-end">
             <h2 className="text-xl font-bold text-foreground">Trending {isMovie ? 'Movies' : 'Shows'}</h2>
-            <span className="text-xs text-[var(--accent)] font-medium">See all</span>
+            <Link href={`/search?type=${isMovie ? 'movie' : 'tv'}`} className="text-xs text-[var(--accent)] font-semibold hover:underline">See all</Link>
           </div>
           <div className="flex overflow-x-auto gap-4 px-4 snap-x snap-mandatory hide-scrollbar">
             {trending.slice(0, 10).map((item: any) => (

@@ -1,14 +1,14 @@
 "use client";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Tv, Film, Compass, User, Users } from 'lucide-react';
+import { Tv, Film, Compass, CalendarDays, User } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const navItems = [
   { name: 'Shows', path: '/', icon: Tv },
   { name: 'Movies', path: '/movies', icon: Film },
   { name: 'Discover', path: '/discover', icon: Compass },
-  { name: 'Community', path: '/community', icon: Users },
+  { name: 'Calendar', path: '/calendar', icon: CalendarDays },
   { name: 'Profile', path: '/profile', icon: User },
 ];
 

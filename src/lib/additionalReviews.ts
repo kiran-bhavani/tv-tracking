@@ -47,37 +47,13 @@ export async function fetchJikanAnimeReviews(title: string): Promise<ExtraReview
   }
 }
 
-export async function fetchRottenTomatoesReviews(title: string): Promise<ExtraReview[]> {
-  const RT_DATABASE: Record<string, ExtraReview[]> = {
-    'Inception': [
-      {
-        id: 'rt_1',
-        author: 'Rotten Tomatoes Consensus',
-        source: 'Rotten Tomatoes',
-        text: "Certified Fresh (87%) — Clever, thrilling, and poignant, Inception is that rare summer blockbuster that succeeds conceptually as well as visually.",
-        rating: 9,
-        isSpoiler: false
-      }
-    ],
-    'The Dark Knight': [
-      {
-        id: 'rt_2',
-        author: 'Rotten Tomatoes Consensus',
-        source: 'Rotten Tomatoes',
-        text: "Certified Fresh (94%) — Dark, complex, and unforgettable, The Dark Knight succeeds not just as an entertaining comic book movie, but as a richly thrilling crime saga.",
-        rating: 10,
-        isSpoiler: false
-      }
-    ]
-  };
-
-  return RT_DATABASE[title] || [];
-}
-
-export async function fetchLetterboxdReviews(title: string): Promise<ExtraReview[]> {
+export async function fetchRottenTomatoesReviews(_title: string): Promise<ExtraReview[]> {
+  // Rotten Tomatoes does not offer a public API.
+  // To integrate real RT scores, use the OMDB API which returns RT% via the Ratings field.
+  // This stub is kept for future integration — return empty for now.
   return [];
 }
 
-export async function fetchDoubanReviews(title: string): Promise<ExtraReview[]> {
-  return [];
-}
+// Letterboxd and Douban don't have public APIs for review fetching.
+// These are intentionally left as no-ops until a proper integration is available.
+

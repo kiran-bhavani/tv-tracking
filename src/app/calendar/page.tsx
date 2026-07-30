@@ -16,24 +16,52 @@ export default function ReleaseCalendarPage() {
 
   const activeTvShows = Object.values(watchlist || {}).filter(show => show && show.type !== 'movie');
 
-  // Compute upcoming schedule
+  // Compute upcoming schedule using real data from TMDB (next_episode_to_air)
   const scheduleItems = activeTvShows.map((show) => {
     const epData = (watchedEpisodes || {})[show.id] || [];
-    const watchedEps = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null);
-    const nextEpNum = watchedEps.length + 1;
-    const totalEps = show.number_of_episodes || 12;
+    const watchedEps = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null) as any[];
 
-    if (nextEpNum > totalEps) return null;
+    const totalEps = show.number_of_episodes || 0;
+    if (totalEps > 0 && watchedEps.length >= totalEps) return null; // Finished
 
-    // Simulate upcoming air dates spread evenly over next weeks for demo/live tracking
-    const daysOffset = (show.id % 21); // Spread 0 to 21 days
-    const airDate = new Date();
-    airDate.setDate(airDate.getDate() + daysOffset);
+    // Derive next season/episode from watched history
+    let nextSeason = 1;
+    let nextEpisode = 1;
+    if (watchedEps.length > 0) {
+      const sorted = [...watchedEps].sort((a, b) => {
+        if ((a.season ?? 1) !== (b.season ?? 1)) return (a.season ?? 1) - (b.season ?? 1);
+        return (a.episode ?? 0) - (b.episode ?? 0);
+      });
+      const last = sorted[sorted.length - 1];
+      nextSeason = last.season ?? 1;
+      nextEpisode = (last.episode ?? 0) + 1;
+    }
+
+    // Try to use real air date from TMDB's next_episode_to_air field
+    // (stored on the show object when available from the API)
+    let airDate: Date | null = null;
+    let daysOffset = -1;
+
+    const nextEpData = (show as any).next_episode_to_air;
+    if (nextEpData?.air_date) {
+      airDate = new Date(nextEpData.air_date);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      daysOffset = Math.round((airDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      nextSeason = nextEpData.season_number ?? nextSeason;
+      nextEpisode = nextEpData.episode_number ?? nextEpisode;
+    } else {
+      // No real air date — mark as TBD (don't show fake dates)
+      return null;
+    }
+
+    // Only show episodes airing within the next 30 days or already aired today
+    if (daysOffset < 0 || daysOffset > 30) return null;
 
     return {
       show,
-      season: 1,
-      episode: nextEpNum,
+      season: nextSeason,
+      episode: nextEpisode,
       airDate,
       daysOffset
     };
@@ -116,7 +144,15 @@ export default function ReleaseCalendarPage() {
       <div className="pt-6 flex flex-col gap-8">
         {scheduleItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-16 px-6">
-            No upcoming releases found. Add TV shows to your watchlist to track episode release dates!
+          <div className="text-center text-muted-foreground py-16 px-6">
+            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mb-4 mx-auto">
+              <CalendarIcon className="w-8 h-8 text-muted-foreground/50" />
+            </div>
+            <h3 className="font-bold text-foreground mb-1">No upcoming episodes</h3>
+            <p className="text-sm leading-relaxed">
+              Shows with confirmed air dates from TMDB will appear here. Add shows to your watchlist and check back!
+            </p>
+          </div>
           </div>
         ) : (
           <>

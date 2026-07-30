@@ -19,20 +19,30 @@ export default function UpNextDeck() {
   // Compute next unwatched episode for each TV show
   const upNextList = activeTvShows.map((show) => {
     const epData = (watchedEpisodes || {})[show.id] || [];
-    const watchedEps = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null);
-    const watchedCount = watchedEps.length;
+    const watchedEps = (Array.isArray(epData) ? epData : []).filter(
+      (e) => typeof e === 'object' && e !== null
+    ) as any[];
 
-    // Simple heuristic: Next episode = watchedCount + 1
-    // Season 1, Episode (watchedCount + 1)
-    const nextEpNum = watchedCount + 1;
-    const totalEps = show.number_of_episodes || 12;
+    const totalEps = show.number_of_episodes || 0;
+    if (totalEps > 0 && watchedEps.length >= totalEps) return null; // Finished
 
-    if (nextEpNum > totalEps) return null; // Finished show
+    // Derive next season/episode from actual watched history (handles season transitions)
+    let nextSeason = 1;
+    let nextEpisode = 1;
+    if (watchedEps.length > 0) {
+      const sorted = [...watchedEps].sort((a, b) => {
+        if ((a.season ?? 1) !== (b.season ?? 1)) return (a.season ?? 1) - (b.season ?? 1);
+        return (a.episode ?? 0) - (b.episode ?? 0);
+      });
+      const last = sorted[sorted.length - 1];
+      nextSeason = last.season ?? 1;
+      nextEpisode = (last.episode ?? 0) + 1;
+    }
 
     return {
       show,
-      season: 1, // Default season 1 estimate or next
-      episode: nextEpNum,
+      season: nextSeason,
+      episode: nextEpisode,
       totalEps
     };
   }).filter(Boolean) as { show: WatchlistShow; season: number; episode: number; totalEps: number }[];

@@ -25,7 +25,12 @@ function FeedItem({ comment, index }: { comment: any, index: number }) {
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-0.5">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-foreground text-sm">{comment.userDisplayName || 'Anonymous'}</span>
+            <Link
+              href={comment.userId ? `/user/${comment.userId}` : '#'}
+              className="font-bold text-foreground text-sm hover:text-accent transition-colors"
+            >
+              {comment.userDisplayName || 'Anonymous'}
+            </Link>
             <span className="text-[10px] text-muted-foreground">
               {comment.timestamp ? formatDistanceToNow(comment.timestamp.toDate(), { addSuffix: true }) : 'just now'}
             </span>

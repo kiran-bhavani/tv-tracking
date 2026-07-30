@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { fetchSocialComments } from '@/lib/socialComments';
 import { fetchRedditComments, fetchMetacriticCriticReviews } from '@/lib/audienceReviews';
-import { fetchJikanAnimeReviews, fetchRottenTomatoesReviews, fetchLetterboxdReviews, fetchDoubanReviews } from '@/lib/additionalReviews';
+import { fetchJikanAnimeReviews, fetchRottenTomatoesReviews } from '@/lib/additionalReviews';
 
 const REACTION_GIFS = [
   "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif",

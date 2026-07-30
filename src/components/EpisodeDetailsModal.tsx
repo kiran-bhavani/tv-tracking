@@ -42,10 +42,12 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const watchlist = useStore((state) => state.watchlist);
   const toggleEpisodeWatched = useStore((state) => state.toggleEpisodeWatched);
+  const rateEpisode = useStore((state) => state.rateEpisode);
 
   const showName = watchlist[showId]?.name || 'Unknown Show';
   const showEpisodes = (watchedEpisodes[showId] || []).filter(e => typeof e === 'object' && e !== null) as any[];
   const isWatched = showEpisodes.some(e => e.id === episode?.id);
+  const episodeRating = showEpisodes.find(e => e.id === episode?.id)?.rating ?? 0;
 
   // Lazy load Trakt/OMDb data if TMDB overview is missing
   useEffect(() => {
@@ -246,6 +248,32 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
                   </span>
                 )}
               </div>
+
+              {/* Episode Star Rating — only shown when watched */}
+              {isWatched && (
+                <div className="flex items-center gap-1 mt-3">
+                  <span className="text-[11px] text-white/60 font-bold mr-1">Your Rating:</span>
+                  {[1,2,3,4,5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={(e) => { e.stopPropagation(); rateEpisode(showId, episode.id, star === episodeRating ? 0 : star); }}
+                      className="transition-transform hover:scale-125"
+                      title={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          star <= episodeRating
+                            ? 'text-accent fill-accent'
+                            : 'text-white/30'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                  {episodeRating > 0 && (
+                    <span className="text-[11px] text-accent font-black ml-1">{episodeRating}/5</span>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -301,7 +329,10 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
             />
 
             {(episodeDetails?.videos?.results?.length > 0 || episodeDetails?.images?.stills?.length > 0) && (
-              <div className="-mx-4 mt-2 mb-6">
+              <div
+                className="-mx-4 mt-2 mb-6"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <MediaGallery 
                   title="Episode Previews & Photos" 
                   videos={episodeDetails.videos?.results} 
@@ -313,7 +344,11 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
             {episode.guest_stars && episode.guest_stars.length > 0 && (
               <div className="mt-10">
                 <h3 className="font-bold text-foreground mb-4 text-xl">Guest Stars</h3>
-                <div className="flex overflow-x-auto gap-5 pb-4 snap-x hide-scrollbar -mx-6 px-6">
+                {/* Stop drag propagation so horizontal scroll doesn't flip episodes */}
+                <div
+                  className="flex overflow-x-auto gap-5 pb-4 snap-x hide-scrollbar -mx-6 px-6"
+                  onPointerDown={(e) => e.stopPropagation()}
+                >
                   {episode.guest_stars.map((star: any) => (
                     <Link href={`/person/${star.id}`} key={star.id} className="flex-shrink-0 w-24 snap-start group">
                       <div className="w-24 h-24 rounded-full bg-muted border border-border overflow-hidden relative mb-3 group-hover:border-accent transition-colors shadow-md">

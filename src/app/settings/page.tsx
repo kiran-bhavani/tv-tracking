@@ -442,7 +442,7 @@ export default function SettingsPage() {
               iconBg="bg-green-500/10"
               label="Privacy Policy"
               subtitle="How we handle your data"
-              onClick={() => {}}
+              onClick={() => window.open('https://www.freeprivacypolicy.com/live/tv-time-tracker', '_blank', 'noopener noreferrer')}
               rightSlot={<ExternalLink className="w-4 h-4 text-muted-foreground/50" />}
             />
           </Card>

@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { notFound } from 'next/navigation';
 import { getShowDetails } from '@/lib/tmdb';
 import { getImageUrl } from '@/lib/utils';
@@ -47,36 +48,23 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
   let finalOverview = show.overview;
   let imdbRating = null;
 
-  // Fallback 1: Trakt.tv
+  // Fetch all fallbacks in parallel — only use results if TMDB overview is missing
   if (!finalOverview || finalOverview.length < 10) {
-    try {
-      const traktData = await fetchTraktDetails(show.id, 'show');
-      if (traktData && traktData.overview) {
-        finalOverview = traktData.overview;
-        imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
-      }
-    } catch { /* skip */ }
-  }
+    const [traktResult, tvmazeResult, omdbResult] = await Promise.allSettled([
+      fetchTraktDetails(show.id, 'show'),
+      fetchTvmazeShow(show.name),
+      fetchOmdbDetails(show.name, 'tv'),
+    ]);
 
-  // Fallback 2: TVmaze
-  if (!finalOverview || finalOverview.length < 10) {
-    try {
-      const tvmazeData = await fetchTvmazeShow(show.name);
-      if (tvmazeData && tvmazeData.summary) {
-        finalOverview = tvmazeData.summary.replace(/<[^>]*>?/gm, '');
-      }
-    } catch { /* skip */ }
-  }
-
-  // Fallback 3: OMDb (last resort)
-  if (!finalOverview || finalOverview.length < 10) {
-    try {
-      const omdbData = await fetchOmdbDetails(show.name, 'tv');
-      if (omdbData) {
-        finalOverview = omdbData.overview || finalOverview;
-        imdbRating = omdbData.imdbRating;
-      }
-    } catch { /* skip */ }
+    if (traktResult.status === 'fulfilled' && traktResult.value?.overview) {
+      finalOverview = traktResult.value.overview;
+      imdbRating = traktResult.value.ids?.imdb ? traktResult.value.rating?.toFixed(1) : null;
+    } else if (tvmazeResult.status === 'fulfilled' && tvmazeResult.value?.summary) {
+      finalOverview = tvmazeResult.value.summary.replace(/<[^>]*>?/gm, '');
+    } else if (omdbResult.status === 'fulfilled' && omdbResult.value) {
+      finalOverview = omdbResult.value.overview || finalOverview;
+      imdbRating = omdbResult.value.imdbRating;
+    }
   }
 
   const tvRating = extractTvRating(show);
@@ -96,10 +84,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-accent/30" />
         
-        {/* Back Button */}
-        <Link href="/" className="absolute top-safe-pt mt-4 left-4 p-2 bg-foreground/80 rounded-full backdrop-blur-sm text-background">
-          <ArrowLeft className="w-6 h-6" />
-        </Link>
+        <BackButton />
       </div>
 
       <div className="px-4 -mt-20 relative z-10 flex gap-4">

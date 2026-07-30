@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, Star, Play } from 'lucide-react';
+import BackButton from '@/components/BackButton';
 import { notFound } from 'next/navigation';
 import { getImageUrl } from '@/lib/utils';
 import WatchlistButton from '@/components/WatchlistButton';
@@ -43,27 +44,21 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
   let finalOverview = movie.overview;
   let imdbRating = null;
 
-  // Fallback 1: Trakt.tv
+  // Fetch all fallbacks in parallel — only use results if TMDB overview is missing
   if (!finalOverview || finalOverview.length < 10) {
-    try {
-      const traktData = await fetchTraktDetails(movie.id, 'movie');
-      if (traktData && traktData.overview) {
-        finalOverview = traktData.overview;
-        imdbRating = traktData.ids?.imdb ? traktData.rating?.toFixed(1) : null;
-      }
-    } catch { /* skip */ }
-  }
+    const [traktResult, omdbResult] = await Promise.allSettled([
+      fetchTraktDetails(movie.id, 'movie'),
+      fetchOmdbDetails(movie.title, 'movie'),
+    ]);
 
-  // Fallback 2: OMDb (last resort)
-  if (!finalOverview || finalOverview.length < 10) {
-    try {
-      const omdbData = await fetchOmdbDetails(movie.title, 'movie');
-      if (omdbData) {
-        finalOverview = omdbData.overview || finalOverview;
-        imdbRating = omdbData.imdbRating;
-      }
-    } catch { /* skip */ }
-  }
+    if (traktResult.status === 'fulfilled' && traktResult.value?.overview) {
+      finalOverview = traktResult.value.overview;
+      imdbRating = traktResult.value.ids?.imdb ? traktResult.value.rating?.toFixed(1) : null;
+    } else if (omdbResult.status === 'fulfilled' && omdbResult.value) {
+      finalOverview = omdbResult.value.overview || finalOverview;
+      imdbRating = omdbResult.value.imdbRating;
+    }
+}
 
   const movieRating = extractMovieRating(movie);
 
@@ -80,10 +75,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-[var(--background)]/40 text-accent-foreground/30" />
         
-        {/* Back Button */}
-        <Link href="/" className="absolute top-safe-pt mt-4 left-4 p-2 bg-muted rounded-full backdrop-blur-sm text-foreground">
-          <ArrowLeft className="w-6 h-6" />
-        </Link>
+        <BackButton className="absolute top-safe-pt mt-4 left-4 p-2 bg-muted rounded-full backdrop-blur-sm text-foreground hover:bg-muted/80 transition-colors" />
       </div>
 
       <div className="px-4 -mt-20 relative z-10 flex gap-4">

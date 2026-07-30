@@ -18,16 +18,16 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://tv-tracking-gnpk.vercel.app'),
   title: {
-    default: "TV Time Tracker",
-    template: "%s | TV Time Tracker",
+    default: "BingePulse — TV & Movie Tracker",
+    template: "%s | BingePulse",
   },
   description: "Track your favorite TV shows and movies. Mark episodes as watched, discover new content, and share lists with friends.",
-  keywords: ["tv tracker", "tv show tracker", "movie tracker", "watchlist", "episode tracker"],
+  keywords: ["tv tracker", "tv show tracker", "movie tracker", "watchlist", "episode tracker", "bingepulse"],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "TV Time",
+    title: "BingePulse",
   },
   applicationName: "TV Time Tracker",
   openGraph: {
@@ -56,7 +56,7 @@ export default function RootLayout({
         <AuthProvider>
           <OfflineBanner />
           <OnboardingGuard>
-            <main className="flex-1 pb-32">
+            <main className="flex-1 pb-20">
               {children}
             </main>
             <BottomNav />

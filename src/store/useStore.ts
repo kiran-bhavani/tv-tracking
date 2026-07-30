@@ -17,6 +17,7 @@ export interface WatchedEpisode {
   id: number;
   season: number;
   episode: number;
+  rating?: number; // 1-10 star rating for the episode
 }
 
 export interface MovieReview {
@@ -43,6 +44,8 @@ interface AppState {
   addToWatchlist: (show: WatchlistShow) => void;
   removeFromWatchlist: (showId: number) => void;
   toggleEpisodeWatched: (showId: number, episode: WatchedEpisode) => void;
+  rateEpisode: (showId: number, episodeId: number, rating: number) => void;
+  markMovieWatched: (movieId: number) => void;
   markPreviousAsWatched: (showId: number, currentSeason: number, currentEpisode: number, allEpisodes: WatchedEpisode[]) => void;
   markSeasonAsWatched: (showId: number, seasonEpisodes: WatchedEpisode[]) => void;
   markShowAsFinished: (showId: number, allEpisodes: WatchedEpisode[]) => void;
@@ -95,6 +98,27 @@ export const useStore = create<AppState>()(
             [showId]: isWatched 
               ? showEpisodes.filter(e => e.id !== episode.id)
               : [...showEpisodes, episode]
+          }
+        };
+      }),
+
+      rateEpisode: (showId, episodeId, rating) => set((state) => {
+        const showEpisodes = (state.watchedEpisodes[showId] || []).filter(e => typeof e === 'object' && e !== null) as WatchedEpisode[];
+        return {
+          watchedEpisodes: {
+            ...state.watchedEpisodes,
+            [showId]: showEpisodes.map(e => e.id === episodeId ? { ...e, rating } : e)
+          }
+        };
+      }),
+
+      markMovieWatched: (movieId) => set((state) => {
+        const existing = (state.watchedEpisodes[movieId] || []).filter(e => typeof e === 'object' && e !== null) as WatchedEpisode[];
+        const isWatched = existing.length > 0;
+        return {
+          watchedEpisodes: {
+            ...state.watchedEpisodes,
+            [movieId]: isWatched ? [] : [{ id: movieId, season: 0, episode: 1 }]
           }
         };
       }),

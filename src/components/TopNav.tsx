@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from 'react';
-import { Bell, Settings, Calendar, Search } from 'lucide-react';
+import { Bell, Settings, Calendar, Search, Users } from 'lucide-react';
 import Link from 'next/link';
 import SearchAutoCompleteModal from './SearchAutoCompleteModal';
 
-export default function TopNav({ title = "TV Time" }: { title?: string }) {
+export default function TopNav({ title = "BingePulse" }: { title?: string }) {
   const [showSearch, setShowSearch] = useState(false);
 
   return (
@@ -20,6 +20,9 @@ export default function TopNav({ title = "TV Time" }: { title?: string }) {
           >
             <Search className="w-5 h-5" />
           </button>
+          <Link href="/community" className="text-muted-foreground hover:text-accent transition" title="Community Feed">
+            <Users className="w-5 h-5" />
+          </Link>
           <Link href="/calendar" className="text-muted-foreground hover:text-accent transition" title="Release Calendar">
             <Calendar className="w-5 h-5" />
           </Link>

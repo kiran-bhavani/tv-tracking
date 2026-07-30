@@ -52,42 +52,10 @@ export async function fetchRedditComments(title: string, season?: number, episod
   }
 }
 
-export async function fetchMetacriticCriticReviews(title: string, type: 'show' | 'movie'): Promise<AudienceComment[]> {
-  const CRITIC_QUOTES: Record<string, AudienceComment[]> = {
-    'Inception': [
-      {
-        id: 'meta_1',
-        author: 'Variety (Critic)',
-        source: 'Metacritic',
-        text: "A astonishing, mind-bending cinematic achievement that operates on multiple levels of imagination.",
-        rating: 10,
-        isSpoiler: false,
-        score: 95
-      }
-    ],
-    'Breaking Bad': [
-      {
-        id: 'meta_2',
-        author: 'The New York Times (Critic)',
-        source: 'Metacritic',
-        text: "Easily one of the most brilliant and uncompromising hours of television this decade.",
-        rating: 10,
-        isSpoiler: false,
-        score: 99
-      }
-    ],
-    'Stranger Things': [
-      {
-        id: 'meta_3',
-        author: 'IGN (Critic)',
-        source: 'Metacritic',
-        text: "A thrilling synth-soaked homage to 80s cinema filled with heart, humor, and genuine horror.",
-        rating: 9,
-        isSpoiler: false,
-        score: 88
-      }
-    ]
-  };
-
-  return CRITIC_QUOTES[title] || [];
+export async function fetchMetacriticCriticReviews(_title: string, _type: 'show' | 'movie'): Promise<AudienceComment[]> {
+  // Metacritic does not have a public API.
+  // Professional critic reviews from Metacritic would require a scraping integration or
+  // a licensed data provider. This stub returns empty until that integration is added.
+  return [];
 }
+

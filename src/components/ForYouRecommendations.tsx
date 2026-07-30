@@ -16,16 +16,33 @@ export default function ForYouRecommendations({ type }: ForYouRecommendationsPro
 
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const watchlist = useStore((state) => state.watchlist);
+  const movieReviews = useStore((state) => state.movieReviews);
 
-  // Compute seed IDs outside the effect so we can create a stable cache key
+  // Compute seed IDs — prefer top-rated items, fall back to watchlist order
   const seedIds = (() => {
-    const ids = type === "tv"
-      ? [...new Set([
+    if (type === 'tv') {
+      // Sort TV shows by watch-count (most watched = most liked)
+      const tvIds = [
+        ...new Set([
           ...Object.keys(watchedEpisodes).map(Number),
           ...Object.values(watchlist).filter(i => i.type === 'tv').map(i => i.id)
-        ])]
-      : Object.values(watchlist).filter(i => i.type === 'movie').map(i => i.id);
-    return ids.slice(0, 5); // cap at 5 seeds
+        ])
+      ];
+      const sorted = tvIds.sort((a, b) => {
+        const aW = (watchedEpisodes[a] || []).length;
+        const bW = (watchedEpisodes[b] || []).length;
+        return bW - aW;
+      });
+      return sorted.slice(0, 5);
+    } else {
+      // Sort movies by user star rating (highest first)
+      const movieIds = Object.values(watchlist).filter(i => i.type === 'movie').map(i => i.id);
+      return movieIds.sort((a, b) => {
+        const aR = movieReviews[a]?.rating ?? 0;
+        const bR = movieReviews[b]?.rating ?? 0;
+        return bR - aR;
+      }).slice(0, 5);
+    }
   })();
 
   const cacheKey = `recs_${type}_${seedIds.slice().sort().join(',')}`;

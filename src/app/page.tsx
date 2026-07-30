@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, MoreVertical } from 'lucide-react';
+import { X, Tv, ArrowUpDown, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
@@ -16,9 +16,11 @@ const getImageUrl = (path: string | null, size: string = 'w500') =>
 export default function WatchlistPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'watchlist' | 'upcoming'>('watchlist');
+  const [sortMode, setSortMode] = useState<'default' | 'alpha' | 'progress'>('default');
   const watchlistMap = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
+  const toggleEpisodeWatched = useStore((state) => state.toggleEpisodeWatched);
 
   useEffect(() => {
     setMounted(true);
@@ -26,26 +28,50 @@ export default function WatchlistPage() {
 
   const allTvShows = Object.values(watchlistMap || {}).filter(show => show?.type === 'tv');
 
-  const activeShows = allTvShows.filter(show => {
-    const epData = (watchedEpisodes || {})[show.id];
-    const showWatched = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null) as any[];
-    return !(show.number_of_episodes && show.number_of_episodes > 0 && showWatched.length >= show.number_of_episodes);
-  });
+  const getWatched = (id: number) =>
+    (Array.isArray((watchedEpisodes || {})[id]) ? (watchedEpisodes || {})[id] : [])
+      .filter((e: any) => typeof e === 'object' && e !== null) as any[];
 
-  const finishedShows = allTvShows.filter(show => {
-    const epData = (watchedEpisodes || {})[show.id];
-    const showWatched = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null) as any[];
-    return (show.number_of_episodes && show.number_of_episodes > 0 && showWatched.length >= show.number_of_episodes);
+  const sortShows = (shows: typeof allTvShows) => {
+    if (sortMode === 'alpha') return [...shows].sort((a, b) => a.name.localeCompare(b.name));
+    if (sortMode === 'progress') return [...shows].sort((a, b) => {
+      const aPct = a.number_of_episodes ? getWatched(a.id).length / a.number_of_episodes : 0;
+      const bPct = b.number_of_episodes ? getWatched(b.id).length / b.number_of_episodes : 0;
+      return bPct - aPct; // most progressed first
+    });
+    return shows;
+  };
+
+  const rawActive = allTvShows.filter(show => {
+    const w = getWatched(show.id);
+    return !(show.number_of_episodes && show.number_of_episodes > 0 && w.length >= show.number_of_episodes);
   });
+  const rawFinished = allTvShows.filter(show => {
+    const w = getWatched(show.id);
+    return (show.number_of_episodes && show.number_of_episodes > 0 && w.length >= show.number_of_episodes);
+  });
+  const activeShows = sortShows(rawActive);
+  const finishedShows = sortShows(rawFinished);
+
+  const sortLabels = { default: 'Added', alpha: 'A–Z', progress: 'Progress' };
+  const cycleSort = () => {
+    const modes = ['default', 'alpha', 'progress'] as const;
+    setSortMode(prev => modes[(modes.indexOf(prev) + 1) % modes.length]);
+  };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Top Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe shadow-sm border-b border-white/5">
         <div className="px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-black tracking-tight text-white">TV Time</h1>
-          <button className="text-white/70 hover:text-white transition-colors">
-            <MoreVertical className="w-6 h-6" />
+          <h1 className="text-2xl font-black tracking-tight text-white">BingePulse</h1>
+          <button
+            onClick={cycleSort}
+            className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
+            title="Change sort order"
+          >
+            <ArrowUpDown className="w-3.5 h-3.5" />
+            {sortLabels[sortMode]}
           </button>
         </div>
         
@@ -84,13 +110,15 @@ export default function WatchlistPage() {
                 
                 let nextEpisodeStr = '';
                 if (totalWatched > 0) {
-                  // Sort by season then episode
+                  // Sort by season then episode to derive the correct next episode
                   const sorted = [...showWatched].sort((a, b) => {
-                    if (a.season !== b.season) return a.season - b.season;
-                    return a.episode - b.episode;
+                    const sSeason = (a.season ?? 1) - (b.season ?? 1);
+                    return sSeason !== 0 ? sSeason : (a.episode ?? 0) - (b.episode ?? 0);
                   });
                   const last = sorted[sorted.length - 1];
-                  nextEpisodeStr = `Up Next: S${String(last.season).padStart(2, '0')}E${String(last.episode + 1).padStart(2, '0')}`;
+                  const nextSeason = last.season ?? 1;
+                  const nextEp = (last.episode ?? 0) + 1;
+                  nextEpisodeStr = `Up Next: S${String(nextSeason).padStart(2, '0')}E${String(nextEp).padStart(2, '0')}`;
                 } else if (show.type === 'tv') {
                   nextEpisodeStr = 'Up Next: S01E01';
                 }
@@ -122,12 +150,39 @@ export default function WatchlistPage() {
                           </p>
                         </Link>
 
-                        <button 
-                          onClick={(e) => { e.preventDefault(); removeFromWatchlist(show.id); }}
-                          className="w-10 h-10 bg-white/5 rounded-full flex justify-center items-center flex-shrink-0 border border-white/10 text-white/50 hover:bg-accent hover:text-accent-foreground hover:border-accent transition-all duration-300 self-center"
-                        >
-                          <Check className="w-5 h-5" />
-                        </button>
+                        <div className="flex flex-col gap-2 flex-shrink-0 self-center">
+                          {/* Quick mark next episode watched */}
+                          {show.type === 'tv' && (() => {
+                            const sorted = [...showWatched].sort((a, b) => {
+                              const s = (a.season ?? 1) - (b.season ?? 1);
+                              return s !== 0 ? s : (a.episode ?? 0) - (b.episode ?? 0);
+                            });
+                            const last = sorted[sorted.length - 1];
+                            const nextSeason = last?.season ?? 1;
+                            const nextEp = (last?.episode ?? 0) + 1;
+                            const nextId = nextSeason * 10000 + nextEp; // synthetic id
+                            return (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  toggleEpisodeWatched(show.id, { id: nextId, season: nextSeason, episode: nextEp });
+                                }}
+                                title={`Mark S${String(nextSeason).padStart(2,'0')}E${String(nextEp).padStart(2,'0')} watched`}
+                                className="w-10 h-10 bg-accent/15 rounded-full flex justify-center items-center border border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground transition-all"
+                              >
+                                <CheckCircle2 className="w-5 h-5" />
+                              </button>
+                            );
+                          })()}
+                          {/* Remove */}
+                          <button 
+                            onClick={(e) => { e.preventDefault(); removeFromWatchlist(show.id); }}
+                            className="w-10 h-10 bg-white/5 rounded-full flex justify-center items-center border border-white/10 text-white/50 hover:bg-red-500/80 hover:text-white hover:border-red-500 transition-all duration-300"
+                            title="Remove from watchlist"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Progress Bar */}
@@ -149,7 +204,7 @@ export default function WatchlistPage() {
             {activeTab === 'watchlist' && activeShows.length === 0 && (
               <div className="text-center text-muted-foreground py-12 flex flex-col items-center gap-4">
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-2">
-                  <Check className="w-10 h-10 text-gray-600" />
+                  <Tv className="w-10 h-10 text-gray-600" />
                 </div>
                 <h3 className="text-xl font-bold text-foreground">
                   You&apos;re all caught up!
@@ -199,9 +254,10 @@ export default function WatchlistPage() {
                             </Link>
                             <button 
                               onClick={(e) => { e.preventDefault(); removeFromWatchlist(show.id); }}
-                              className="w-8 h-8 bg-white/5 rounded-full flex justify-center items-center flex-shrink-0 border border-white/10 text-white/50 hover:bg-accent hover:text-accent-foreground hover:border-accent transition-all duration-300 ml-4"
+                              className="w-8 h-8 bg-white/5 rounded-full flex justify-center items-center flex-shrink-0 border border-white/10 text-white/50 hover:bg-red-500/80 hover:text-white hover:border-red-500 transition-all duration-300 ml-4"
+                              title="Remove from watchlist"
                             >
-                              <Check className="w-4 h-4" />
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         </div>

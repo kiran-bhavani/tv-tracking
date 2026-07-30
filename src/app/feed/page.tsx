@@ -71,9 +71,12 @@ export default function FeedPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start gap-2">
-                  <h4 className="font-bold text-foreground truncate">
+                  <Link
+                    href={act.userId ? `/user/${act.userId}` : '#'}
+                    className="font-bold text-foreground truncate hover:text-accent transition-colors"
+                  >
                     {act.userDisplayName}
-                  </h4>
+                  </Link>
                   <span className="text-[10px] text-muted-foreground whitespace-nowrap flex-shrink-0">
                     {act.timestamp ? formatDistanceToNow(act.timestamp.toDate(), { addSuffix: true }) : 'just now'}
                   </span>
