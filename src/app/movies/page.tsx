@@ -189,8 +189,8 @@ export default function MoviesWatchlistPage() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
-            </AnimatePresence>
+                </AnimatePresence>
+            )}
 
             {activeMovies.length === 0 && finishedMovies.length === 0 && (
               <div className="text-center text-muted-foreground py-16 flex flex-col items-center gap-4">
