@@ -8,6 +8,7 @@ import { Send, User, MessageSquare, Image as ImageIcon, EyeOff, Eye, X } from 'l
 import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { fetchSocialComments } from '@/lib/socialComments';
+import { fetchRedditComments, fetchMetacriticCriticReviews } from '@/lib/audienceReviews';
 
 const REACTION_GIFS = [
   "https://media.giphy.com/media/26ufdipQqUpiX5LEo/giphy.gif",
@@ -94,15 +95,40 @@ export default function EpisodeComments({ showId, seasonNumber, episodeNumber, s
 
     async function loadSocial() {
       try {
-        const socialData = await fetchSocialComments('episode', showTitle, showId, seasonNumber, episodeNumber);
-        socialComments = socialData.map(s => ({
+        const [socialData, redditData, criticData] = await Promise.all([
+          fetchSocialComments('episode', showTitle, showId, seasonNumber, episodeNumber),
+          fetchRedditComments(showTitle, seasonNumber, episodeNumber),
+          fetchMetacriticCriticReviews(showTitle, 'show')
+        ]);
+
+        const mappedSocial = socialData.map(s => ({
           id: s.id,
-          userDisplayName: s.author,
+          userDisplayName: `${s.author} (${s.platform})`,
           avatar: s.avatar,
           text: s.comment,
           isSpoiler: s.isSpoiler,
           timestamp: null
         }));
+
+        const mappedReddit = redditData.map(r => ({
+          id: r.id,
+          userDisplayName: `${r.author} (Reddit)`,
+          avatar: r.avatar,
+          text: r.text,
+          isSpoiler: r.isSpoiler,
+          timestamp: null
+        }));
+
+        const mappedCritics = criticData.map(c => ({
+          id: c.id,
+          userDisplayName: `${c.author}`,
+          avatar: undefined,
+          text: `[Critic Review] ${c.text}`,
+          isSpoiler: c.isSpoiler,
+          timestamp: null
+        }));
+
+        socialComments = [...mappedSocial, ...mappedReddit, ...mappedCritics];
         combineComments();
       } catch (err) {
         console.error("Social comments load error", err);
