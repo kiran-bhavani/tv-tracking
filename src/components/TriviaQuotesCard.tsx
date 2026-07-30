@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
-import { Quote, HelpCircle, ChevronDown, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Quote, ChevronDown, Sparkles, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { generateTriviaAction } from '@/app/actions/ai';
 
 interface TriviaQuotesCardProps {
   title: string;
@@ -10,7 +11,6 @@ interface TriviaQuotesCardProps {
   tagline?: string;
 }
 
-// Fallback iconic quotes database for popular titles & genres
 const POPULAR_QUOTES: Record<string, { quote: string; speaker: string }> = {
   'Inception': { quote: "An idea is like a virus. Resilient. Highly contagious.", speaker: "Cobb" },
   'The Dark Knight': { quote: "Why so serious?", speaker: "The Joker" },
@@ -23,7 +23,7 @@ const POPULAR_QUOTES: Record<string, { quote: string; speaker: string }> = {
   'Game of Thrones': { quote: "When you play the game of thrones, you win or you die.", speaker: "Cersei Lannister" },
 };
 
-const TRIVIA_ITEMS: Record<string, string[]> = {
+const HARDCODED_TRIVIA: Record<string, string[]> = {
   'Inception': [
     "Christopher Nolan wrote the script over a period of 10 years.",
     "The film's runtime is 2h 28m, which matches the length of the song 'Non, je ne regrette rien' played backwards."
@@ -44,17 +44,34 @@ const TRIVIA_ITEMS: Record<string, string[]> = {
 
 export default function TriviaQuotesCard({ title, type, tagline }: TriviaQuotesCardProps) {
   const [showTrivia, setShowTrivia] = useState(false);
+  const [triviaList, setTriviaList] = useState<string[]>(HARDCODED_TRIVIA[title] || []);
+  const [loadingTrivia, setLoadingTrivia] = useState(false);
 
   const quoteData = POPULAR_QUOTES[title] || (tagline ? { quote: tagline, speaker: 'Official Tagline' } : null);
-  const triviaList = TRIVIA_ITEMS[title] || [
-    `Did you know? "${title}" features high-resolution TMDB production artwork and audio details in this app.`,
-    `Over 80% of fans who watch ${title} add it to their permanent watchlist!`
-  ];
 
-  if (!quoteData && triviaList.length === 0) return null;
+  useEffect(() => {
+    async function loadTrivia() {
+      if (HARDCODED_TRIVIA[title]) return;
+      setLoadingTrivia(true);
+      try {
+        const facts = await generateTriviaAction(title, type);
+        if (facts && Array.isArray(facts)) {
+          setTriviaList(facts);
+        }
+      } catch (err) {
+        console.error("Trivia fetch error:", err);
+      } finally {
+        setLoadingTrivia(false);
+      }
+    }
+
+    loadTrivia();
+  }, [title, type]);
+
+  if (!quoteData && triviaList.length === 0 && !loadingTrivia) return null;
 
   return (
-    <div className="px-4 mt-6">
+    <div className="px-4 my-6">
       <div className="bg-card border border-border/80 rounded-2xl p-5 shadow-md flex flex-col gap-4 relative overflow-hidden">
         
         {/* Quote Section */}
@@ -92,13 +109,19 @@ export default function TriviaQuotesCard({ title, type, tagline }: TriviaQuotesC
                 exit={{ height: 0, opacity: 0 }}
                 className="overflow-hidden"
               >
-                <ul className="flex flex-col gap-2 mt-3 pt-3 border-t border-border/40 text-xs text-foreground list-disc list-inside leading-relaxed">
-                  {triviaList.map((fact, idx) => (
-                    <li key={idx} className="pl-1">
-                      <span className="text-muted-foreground">{fact}</span>
-                    </li>
-                  ))}
-                </ul>
+                {loadingTrivia ? (
+                  <div className="flex items-center gap-2 py-4 text-xs text-muted-foreground animate-pulse">
+                    <Loader2 className="w-4 h-4 animate-spin text-accent" /> Fetching behind-the-scenes trivia...
+                  </div>
+                ) : (
+                  <ul className="flex flex-col gap-2 mt-3 pt-3 border-t border-border/40 text-xs text-foreground list-disc list-inside leading-relaxed">
+                    {triviaList.map((fact, idx) => (
+                      <li key={idx} className="pl-1">
+                        <span className="text-muted-foreground">{fact}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </motion.div>
             )}
           </AnimatePresence>

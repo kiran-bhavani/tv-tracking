@@ -43,3 +43,31 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
     return null;
   }
 }
+
+export async function generateTriviaAction(title: string, type: 'show' | 'movie') {
+  if (!process.env.GEMINI_API_KEY) {
+    return null;
+  }
+
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  const mediaType = type === 'movie' ? 'movie' : 'TV show';
+  const prompt = `Give me 2 fascinating, real, verified behind-the-scenes trivia facts about the ${mediaType} "${title}". Return ONLY a JSON array of 2 strings like: ["Fact 1", "Fact 2"]. Do not include markdown codeblocks or extra text.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    const text = response.text?.trim() || "";
+    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const facts = JSON.parse(cleanText);
+    if (Array.isArray(facts) && facts.length > 0) {
+      return facts;
+    }
+    return null;
+  } catch (error) {
+    console.error("Trivia AI Generation error:", error);
+    return null;
+  }
+}
+
