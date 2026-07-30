@@ -121,11 +121,6 @@ export default function ReleaseCalendarPage() {
                       <span className="text-xs font-black text-accent">
                         S{item.season} E{item.episode}
                       </span>
-                      {item.source && (
-                        <span className="text-[9px] font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded uppercase">
-                          {item.source}
-                        </span>
-                      )}
                     </div>
                     <span className="text-[11px] text-muted-foreground mt-1 truncate">
                       {item.episodeName || 'Upcoming Episode'} • {item.airDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
@@ -156,7 +151,7 @@ export default function ReleaseCalendarPage() {
         {loading ? (
           <div className="text-center text-muted-foreground py-16 px-6">
             <div className="w-10 h-10 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-sm font-bold">Checking upcoming air dates across TMDB & TVmaze...</p>
+            <p className="text-sm font-bold">Loading release schedule...</p>
           </div>
         ) : scheduleItems.length === 0 ? (
           <div className="text-center text-muted-foreground py-16 px-6">
@@ -165,7 +160,7 @@ export default function ReleaseCalendarPage() {
             </div>
             <h3 className="font-bold text-foreground mb-1">No upcoming episodes</h3>
             <p className="text-sm leading-relaxed max-w-sm mx-auto">
-              No confirmed upcoming episode air dates found for your watchlist shows on TMDB or TVmaze. Check back soon or add more shows to your watchlist!
+              No confirmed upcoming episodes for your watchlist shows. Add more shows to your watchlist to track release dates!
             </p>
           </div>
         ) : (

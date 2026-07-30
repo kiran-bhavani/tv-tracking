@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Tv, ArrowUpDown, CheckCircle2 } from 'lucide-react';
+import { X, Tv, ArrowUpDown, CheckCircle2, LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
@@ -17,6 +17,7 @@ export default function WatchlistPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'watchlist' | 'upcoming'>('watchlist');
   const [sortMode, setSortMode] = useState<'default' | 'alpha' | 'progress'>('default');
+  const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');
   const watchlistMap = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);
@@ -65,14 +66,35 @@ export default function WatchlistPage() {
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe shadow-sm border-b border-white/5">
         <div className="px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-black tracking-tight text-white">BingePulse</h1>
-          <button
-            onClick={cycleSort}
-            className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
-            title="Change sort order"
-          >
-            <ArrowUpDown className="w-3.5 h-3.5" />
-            {sortLabels[sortMode]}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle (Card vs Grid) */}
+            <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-1.5 rounded-full transition-colors ${viewMode === 'card' ? 'bg-accent text-accent-foreground' : 'text-white/50 hover:text-white'}`}
+                title="Detailed Cards View"
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-accent text-accent-foreground' : 'text-white/50 hover:text-white'}`}
+                title="Compact Poster Grid View"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Sort Toggle */}
+            <button
+              onClick={cycleSort}
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
+              title="Change sort order"
+            >
+              <ArrowUpDown className="w-3.5 h-3.5" />
+              {sortLabels[sortMode]}
+            </button>
+          </div>
         </div>
         
         {/* Tabs */}
@@ -99,7 +121,67 @@ export default function WatchlistPage() {
           <>
             {activeTab === 'upcoming' ? (
               <UpcomingTab showIds={allTvShows.map(s => s.id)} />
+            ) : viewMode === 'grid' ? (
+              /* Compact Poster Grid View */
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {activeShows.map(show => {
+                  const epData = (watchedEpisodes || {})[show.id];
+                  const showWatched = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null) as any[];
+                  const totalWatched = showWatched.length;
+                  const totalEpisodes = show.number_of_episodes || 0;
+                  const progressPercent = totalEpisodes > 0 ? Math.min(100, Math.round((totalWatched / totalEpisodes) * 100)) : 0;
+
+                  const sorted = [...showWatched].sort((a, b) => {
+                    const s = (a.season ?? 1) - (b.season ?? 1);
+                    return s !== 0 ? s : (a.episode ?? 0) - (b.episode ?? 0);
+                  });
+                  const last = sorted[sorted.length - 1];
+                  const nextSeason = last?.season ?? 1;
+                  const nextEp = (last?.episode ?? 0) + 1;
+                  const nextId = nextSeason * 10000 + nextEp;
+
+                  return (
+                    <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-white/5 shadow-md">
+                      <Link href={`/show/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
+                        <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        
+                        {/* Quick Mark Watched Overlay Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleEpisodeWatched(show.id, { id: nextId, season: nextSeason, episode: nextEp });
+                          }}
+                          title={`Mark S${String(nextSeason).padStart(2,'0')}E${String(nextEp).padStart(2,'0')} watched`}
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg opacity-90 hover:scale-110 transition-transform"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                        </button>
+
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <span className="text-[10px] font-black text-accent uppercase tracking-wider block truncate">
+                            S{String(nextSeason).padStart(2,'0')}E{String(nextEp).padStart(2,'0')}
+                          </span>
+                        </div>
+                      </Link>
+
+                      <div className="p-2 flex flex-col justify-between flex-1">
+                        <Link href={`/show/${show.id}`} className="font-bold text-foreground text-xs leading-tight line-clamp-1 group-hover:text-accent transition-colors">
+                          {show.name}
+                        </Link>
+                        {totalEpisodes > 0 && (
+                          <div className="w-full bg-white/10 h-1 rounded-full overflow-hidden mt-1.5">
+                            <div className="bg-accent h-full transition-all" style={{ width: `${progressPercent}%` }} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             ) : (
+              /* Detailed Cards View */
               <AnimatePresence>
                 {activeShows.map(show => {
                 const epData = (watchedEpisodes || {})[show.id];

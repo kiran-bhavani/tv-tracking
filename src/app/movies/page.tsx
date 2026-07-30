@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Check, Dices, ArrowUpDown, Film } from 'lucide-react';
+import { X, Check, Dices, ArrowUpDown, Film, LayoutGrid, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
@@ -18,6 +18,7 @@ export default function MoviesWatchlistPage() {
   const [mounted, setMounted] = useState(false);
   const [showRoulette, setShowRoulette] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>('default');
+  const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');
 
   const watchlistMap = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
@@ -65,6 +66,24 @@ export default function MoviesWatchlistPage() {
         <div className="px-4 py-2 flex justify-between items-center">
           <h1 className="text-xl font-bold text-foreground">Movies</h1>
           <div className="flex items-center gap-2">
+            {/* View Mode Toggle */}
+            <div className="bg-muted p-1 rounded-full border border-border flex gap-1">
+              <button
+                onClick={() => setViewMode('card')}
+                className={`p-1.5 rounded-full transition-colors ${viewMode === 'card' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                title="Detailed Cards View"
+              >
+                <List className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                title="Compact Poster Grid View"
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
             <button
               onClick={cycleSort}
               className="flex items-center gap-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-border"
@@ -96,8 +115,39 @@ export default function MoviesWatchlistPage() {
           <div className="text-center text-muted-foreground py-10">Loading...</div>
         ) : (
           <>
-            <AnimatePresence>
-              {activeMovies.map(show => (
+            {viewMode === 'grid' ? (
+              /* Poster Grid View */
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                {activeMovies.map(show => (
+                  <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-md">
+                    <Link href={`/movie/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
+                      <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          markMovieWatched(show.id);
+                        }}
+                        title="Mark as watched"
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg opacity-90 hover:scale-110 transition-transform"
+                      >
+                        <Check className="w-4 h-4 stroke-[3]" />
+                      </button>
+                    </Link>
+
+                    <div className="p-2 flex flex-col justify-between flex-1">
+                      <Link href={`/movie/${show.id}`} className="font-bold text-foreground text-xs leading-tight line-clamp-1 group-hover:text-accent transition-colors">
+                        {show.name}
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              /* Detailed Cards View */
+              <AnimatePresence>
+                {activeMovies.map(show => (
                 <motion.div
                   key={show.id}
                   layout
