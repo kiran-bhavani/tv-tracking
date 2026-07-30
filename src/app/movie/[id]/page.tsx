@@ -15,6 +15,7 @@ import MovieCollectionCard from '@/components/MovieCollectionCard';
 import MovieReviewSection from '@/components/MovieReviewSection';
 import ShareStoryButton from '@/components/ShareStoryButton';
 import TriviaQuotesCard from '@/components/TriviaQuotesCard';
+import ShowComments from '@/components/ShowComments';
 import TraktShoutsSection from '@/components/TraktShoutsSection';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
@@ -210,6 +211,9 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
           </div>
         </div>
       )}
+
+      {/* Movie & Critic Reviews */}
+      <ShowComments id={movie.id} type="movie" title={movie.title} />
 
       {/* Similar Movies */}
       {similarMovies.length > 0 && (

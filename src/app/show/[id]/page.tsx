@@ -19,6 +19,7 @@ import SocialStoryModal from '@/components/SocialStoryModal';
 import ShareStoryButton from '@/components/ShareStoryButton';
 import TriviaQuotesCard from '@/components/TriviaQuotesCard';
 import MdlBadges from '@/components/MdlBadges';
+import ShowComments from '@/components/ShowComments';
 import TraktShoutsSection from '@/components/TraktShoutsSection';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
@@ -255,8 +256,11 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
         <SeasonAccordion showId={show.id} seasons={show.seasons} />
       </div>
 
+      {/* Show & Critic Reviews */}
+      <ShowComments id={show.id} type="show" title={show.name} />
+
       {/* Similar Shows */}
-      {similarShows.length > 0 && (
+      {show.similar?.results?.length > 0 && (
         <div className="mt-8">
           <h3 className="text-lg font-bold text-foreground px-4 mb-3">Similar Shows</h3>
           <div className="flex overflow-x-auto gap-4 px-4 pb-4 snap-x snap-mandatory hide-scrollbar">
