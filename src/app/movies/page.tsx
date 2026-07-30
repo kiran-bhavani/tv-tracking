@@ -15,7 +15,7 @@ const getImageUrl = (path: string | null, size: string = 'w500') =>
 type SortMode = 'default' | 'alpha' | 'unwatched_first';
 
 export default function MoviesWatchlistPage() {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [showRoulette, setShowRoulette] = useState(false);
   const [sortMode, setSortMode] = useState<SortMode>('default');
   const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');

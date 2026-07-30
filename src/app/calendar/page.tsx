@@ -10,13 +10,19 @@ import { getImageUrl } from '@/lib/utils';
 import { logActivity } from '@/lib/activity';
 import { fetchWatchlistScheduleAction } from '@/app/actions/tmdb';
 
+import { cacheManager } from '@/lib/cache';
+
+const CALENDAR_CACHE_KEY = 'calendar_schedule_v1';
+
 export default function ReleaseCalendarPage() {
   const watchlist = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const toggleEpisodeWatched = useStore((state) => state.toggleEpisodeWatched);
 
-  const [scheduleItems, setScheduleItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [scheduleItems, setScheduleItems] = useState<any[]>(() => {
+    return cacheManager.get<any[]>(CALENDAR_CACHE_KEY) || [];
+  });
+  const [loading, setLoading] = useState<boolean>(() => scheduleItems.length === 0);
 
   const activeTvShows = Object.values(watchlist || {}).filter(show => show && show.type !== 'movie');
 
@@ -58,6 +64,8 @@ export default function ReleaseCalendarPage() {
         }).filter(Boolean);
 
         parsed.sort((a: any, b: any) => a.airDate.getTime() - b.airDate.getTime());
+
+        cacheManager.set(CALENDAR_CACHE_KEY, parsed);
 
         if (isMounted) {
           setScheduleItems(parsed);

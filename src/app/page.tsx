@@ -14,7 +14,7 @@ const getImageUrl = (path: string | null, size: string = 'w500') =>
   path ? `https://image.tmdb.org/t/p/${size}${path}` : '/placeholder.png';
 
 export default function WatchlistPage() {
-  const [mounted, setMounted] = useState(false);
+  const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [activeTab, setActiveTab] = useState<'watchlist' | 'upcoming'>('watchlist');
   const [sortMode, setSortMode] = useState<'default' | 'alpha' | 'progress'>('default');
   const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');

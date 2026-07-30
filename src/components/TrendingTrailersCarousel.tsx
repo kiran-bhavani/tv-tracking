@@ -46,9 +46,12 @@ const FALLBACK_TRAILERS = [
   }
 ];
 
+const TRAILERS_CACHE_KEY = 'trending_trailers_v1';
+
 export default function TrendingTrailersCarousel() {
-  const [trailers, setTrailers] = useState<any[]>(FALLBACK_TRAILERS);
-  const [loading, setLoading] = useState(true);
+  const [trailers, setTrailers] = useState<any[]>(() => {
+    return cacheManager.get<any[]>(TRAILERS_CACHE_KEY) || FALLBACK_TRAILERS;
+  });
   const [selectedVideo, setSelectedVideo] = useState<{ key: string; title: string } | null>(null);
 
   useEffect(() => {
@@ -59,11 +62,10 @@ export default function TrendingTrailersCarousel() {
         const dynamicTrailers = await fetchTrendingTrailersAction();
         if (isMounted && dynamicTrailers && dynamicTrailers.length > 0) {
           setTrailers(dynamicTrailers);
+          cacheManager.set(TRAILERS_CACHE_KEY, dynamicTrailers);
         }
       } catch (err) {
         console.error("Failed to load dynamic trailers:", err);
-      } finally {
-        if (isMounted) setLoading(false);
       }
     }
 
