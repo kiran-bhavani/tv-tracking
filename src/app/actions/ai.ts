@@ -71,31 +71,4 @@ export async function generateTriviaAction(title: string, type: 'show' | 'movie'
   }
 }
 
-export async function generateShowReviewsAction(title: string, type: 'show' | 'movie') {
-  if (!process.env.GEMINI_API_KEY) {
-    return null;
-  }
-
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-  const mediaType = type === 'movie' ? 'movie' : 'TV show';
-  const prompt = `Provide 3 real or authentic critic and audience review snippets for the ${mediaType} "${title}". Return ONLY a JSON array of objects with keys: "author" (e.g. "Variety (Critic)" or "Rotten Tomatoes Consensus" or "Letterboxd Reviewer"), "text" (the review text), and "isCritic" (boolean). Example format: [{"author": "Variety (Critic)", "text": "Brilliant pacing and acting.", "isCritic": true}]. Do not include markdown codeblocks or extra text.`;
-
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
-    const text = response.text?.trim() || "";
-    const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
-    const reviews = JSON.parse(cleanText);
-    if (Array.isArray(reviews) && reviews.length > 0) {
-      return reviews;
-    }
-    return null;
-  } catch (error) {
-    console.error("Reviews AI Generation error:", error);
-    return null;
-  }
-}
-
 

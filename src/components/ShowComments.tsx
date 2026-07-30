@@ -6,7 +6,9 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
 import { Send, User, MessageSquare, Eye, Award, ShieldCheck, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { generateShowReviewsAction } from '@/app/actions/ai';
+import { fetchRedditComments, fetchMetacriticCriticReviews } from '@/lib/audienceReviews';
+import { fetchJikanAnimeReviews, fetchRottenTomatoesReviews } from '@/lib/additionalReviews';
+import { fetchSocialComments } from '@/lib/socialComments';
 
 interface ShowCommentsProps {
   id: number;
@@ -23,8 +25,14 @@ function CommentCard({ comment }: { comment: any }) {
     <div className={`p-4 rounded-2xl border transition-all ${isCritic ? 'bg-amber-500/5 border-amber-500/30' : 'bg-card border-border/80'}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
-          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${isCritic ? 'bg-amber-500 text-black' : 'bg-muted border border-border text-muted-foreground'}`}>
-            {isCritic ? <Award className="w-4 h-4" /> : <User className="w-3.5 h-3.5" />}
+          <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs overflow-hidden ${isCritic ? 'bg-amber-500 text-black' : 'bg-muted border border-border text-muted-foreground'}`}>
+            {comment.avatar ? (
+              <img src={comment.avatar} alt={comment.userDisplayName} className="w-full h-full object-cover" />
+            ) : isCritic ? (
+              <Award className="w-4 h-4" />
+            ) : (
+              <User className="w-3.5 h-3.5" />
+            )}
           </div>
           <span className="font-bold text-sm text-foreground">{comment.userDisplayName}</span>
           {isCritic && (
@@ -68,16 +76,49 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
 
     async function loadExternal() {
       try {
-        const aiReviews = await generateShowReviewsAction(title, type);
-        if (aiReviews && Array.isArray(aiReviews)) {
-          externalReviews = aiReviews.map((r: any, i: number) => ({
-            id: `ai_rev_${i}_${title}`,
-            userDisplayName: r.author || 'Critic Review',
-            text: r.text,
-            isSpoiler: false,
-            isCritic: r.isCritic ?? true
-          }));
-        }
+        const [reddit, trakt, anime, meta] = await Promise.all([
+          fetchRedditComments(title),
+          fetchSocialComments(type, title, id),
+          fetchJikanAnimeReviews(title),
+          fetchMetacriticCriticReviews(title, type)
+        ]);
+
+        const mappedReddit = reddit.map(r => ({
+          id: r.id,
+          userDisplayName: r.author,
+          avatar: r.avatar,
+          text: r.text,
+          isSpoiler: r.isSpoiler,
+          isCritic: false
+        }));
+
+        const mappedTrakt = trakt.map(t => ({
+          id: t.id,
+          userDisplayName: `${t.author} (${t.platform})`,
+          avatar: t.avatar,
+          text: t.comment,
+          isSpoiler: t.isSpoiler,
+          isCritic: false
+        }));
+
+        const mappedAnime = anime.map(a => ({
+          id: a.id,
+          userDisplayName: `${a.author} (MyAnimeList)`,
+          avatar: a.avatar,
+          text: a.text,
+          isSpoiler: a.isSpoiler,
+          isCritic: false
+        }));
+
+        const mappedMeta = meta.map(m => ({
+          id: m.id,
+          userDisplayName: m.author,
+          text: m.text,
+          isSpoiler: m.isSpoiler,
+          isCritic: true
+        }));
+
+        externalReviews = [...mappedReddit, ...mappedTrakt, ...mappedAnime, ...mappedMeta];
         combine();
       } catch (err) {
         console.error("External reviews load error:", err);
@@ -135,7 +176,7 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
     <div className="px-4 mt-10 pt-8 border-t border-border/60">
       <div className="flex items-center gap-2 mb-4">
         <MessageSquare className="w-5 h-5 text-accent" />
-        <h3 className="font-bold text-foreground text-xl">Reviews & Critic Comments ({comments.length})</h3>
+        <h3 className="font-bold text-foreground text-xl">Reviews & Audience Comments ({comments.length})</h3>
       </div>
 
       {user && (

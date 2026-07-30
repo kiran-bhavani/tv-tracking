@@ -13,11 +13,11 @@ export interface AudienceComment {
 export async function fetchRedditComments(title: string, season?: number, episode?: number): Promise<AudienceComment[]> {
   try {
     const queryTerm = season && episode ? `${title} Season ${season} Episode ${episode}` : title;
-    const url = `https://www.reddit.com/r/television/search.json?q=${encodeURIComponent(queryTerm)}&sort=relevance&limit=3`;
+    const url = `https://www.reddit.com/search.json?q=${encodeURIComponent(queryTerm)}&sort=relevance&limit=5`;
 
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; TVTrackerApp/1.0)' },
-      next: { revalidate: 3600 }
+      next: { revalidate: 1800 }
     });
 
     if (!res.ok) return [];
@@ -26,22 +26,26 @@ export async function fetchRedditComments(title: string, season?: number, episod
 
     const comments: AudienceComment[] = [];
 
-    posts.slice(0, 2).forEach((post: any) => {
+    posts.forEach((post: any) => {
       const pData = post.data;
-      if (pData && pData.title && pData.title.length > 10) {
+      if (pData && pData.title) {
+        const bodyText = pData.selftext && pData.selftext.length > 20 
+          ? (pData.selftext.length > 250 ? pData.selftext.substring(0, 250) + '...' : pData.selftext)
+          : pData.title;
+
         comments.push({
           id: `reddit_${pData.id}`,
-          author: `u/${pData.author || 'TV_Redditor'}`,
+          author: `u/${pData.author || 'Redditor'} (r/${pData.subreddit || 'television'})`,
           avatar: 'https://www.redditstatic.com/shnooful.png',
           source: 'Reddit',
-          text: `[r/television] ${pData.title}`,
+          text: bodyText,
           isSpoiler: pData.spoiler || false,
-          score: pData.score || 15
+          score: pData.score || 0
         });
       }
     });
 
-    return comments;
+    return comments.slice(0, 4);
   } catch (err) {
     console.error("Reddit API error:", err);
     return [];
