@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, onSnapshot, serverTimestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/contexts/AuthContext';
-import { Send, User, MessageSquare, Image as ImageIcon, Eye, X, Award, ShieldCheck } from 'lucide-react';
+import { Send, User, MessageSquare, Eye, Award, ShieldCheck, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { fetchMetacriticCriticReviews } from '@/lib/audienceReviews';
-import { fetchRottenTomatoesReviews, fetchLetterboxdReviews, fetchDoubanReviews } from '@/lib/additionalReviews';
+import { generateShowReviewsAction } from '@/app/actions/ai';
 
 interface ShowCommentsProps {
   id: number;
@@ -69,46 +68,16 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
 
     async function loadExternal() {
       try {
-        const [meta, rt, lb, dbReviews] = await Promise.all([
-          fetchMetacriticCriticReviews(title, type),
-          fetchRottenTomatoesReviews(title),
-          type === 'movie' ? fetchLetterboxdReviews(title) : Promise.resolve([]),
-          fetchDoubanReviews(title)
-        ]);
-
-        const mappedMeta = meta.map(c => ({
-          id: c.id,
-          userDisplayName: c.author,
-          text: c.text,
-          isSpoiler: c.isSpoiler,
-          isCritic: true
-        }));
-
-        const mappedRt = rt.map(c => ({
-          id: c.id,
-          userDisplayName: c.author,
-          text: c.text,
-          isSpoiler: c.isSpoiler,
-          isCritic: true
-        }));
-
-        const mappedLb = lb.map(c => ({
-          id: c.id,
-          userDisplayName: c.author,
-          text: c.text,
-          isSpoiler: c.isSpoiler,
-          isCritic: false
-        }));
-
-        const mappedDb = dbReviews.map(c => ({
-          id: c.id,
-          userDisplayName: c.author,
-          text: c.text,
-          isSpoiler: c.isSpoiler,
-          isCritic: false
-        }));
-
-        externalReviews = [...mappedMeta, ...mappedRt, ...mappedLb, ...mappedDb];
+        const aiReviews = await generateShowReviewsAction(title, type);
+        if (aiReviews && Array.isArray(aiReviews)) {
+          externalReviews = aiReviews.map((r: any, i: number) => ({
+            id: `ai_rev_${i}_${title}`,
+            userDisplayName: r.author || 'Critic Review',
+            text: r.text,
+            isSpoiler: false,
+            isCritic: r.isCritic ?? true
+          }));
+        }
         combine();
       } catch (err) {
         console.error("External reviews load error:", err);
@@ -124,16 +93,13 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
 
     const q = query(
       collection(db, 'comments'),
-      where('showId', '==', id),
-      where('seasonNumber', '==', null),
-      orderBy('timestamp', 'desc')
+      where('showId', '==', id)
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      firestoreComments = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      firestoreComments = snapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter((c: any) => !c.seasonNumber);
       combine();
     }, (err) => {
       console.error("Firestore show comments error:", err);
@@ -196,7 +162,9 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
 
       <div className="space-y-3">
         {loading ? (
-          <p className="text-center text-xs text-muted-foreground py-4">Loading reviews...</p>
+          <div className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground">
+            <Loader2 className="w-4 h-4 animate-spin text-accent" /> Loading reviews...
+          </div>
         ) : comments.length === 0 ? (
           <p className="text-center text-xs text-muted-foreground py-4 bg-muted/30 rounded-xl">Be the first to review {title}!</p>
         ) : (
