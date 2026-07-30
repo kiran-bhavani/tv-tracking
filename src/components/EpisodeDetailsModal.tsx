@@ -330,15 +330,6 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
                 </div>
               </div>
             )}
-
-            {/* Comments Section */}
-            <div className="mt-10 pt-8 border-t border-border/50">
-              <EpisodeComments 
-                showId={showId} 
-                seasonNumber={seasonNumber} 
-                episodeNumber={episode.episode_number} 
-              />
-            </div>
           </div>
         </motion.div>
       </AnimatePresence>
