@@ -18,6 +18,7 @@ import ShowrunnerCard from '@/components/ShowrunnerCard';
 import SocialStoryModal from '@/components/SocialStoryModal';
 import ShareStoryButton from '@/components/ShareStoryButton';
 import TriviaQuotesCard from '@/components/TriviaQuotesCard';
+import MdlBadges from '@/components/MdlBadges';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -156,7 +157,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Genre Pills */}
       {show.genres && show.genres.length > 0 && (
-        <div className="px-4 mt-4 flex flex-wrap gap-2">
+        <div className="px-4 mt-3 flex flex-wrap gap-2">
           {show.genres.map((genre: any) => (
             <Link
               key={genre.id}
@@ -168,6 +169,11 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
           ))}
         </div>
       )}
+
+      {/* MyDramaList & Subtitle Metadata */}
+      <div className="px-4">
+        <MdlBadges title={show.name} originalLanguage={show.original_language} />
+      </div>
 
       {/* Action Buttons */}
       <div className="px-4 mt-6 flex gap-3">
