@@ -37,7 +37,7 @@ export default function ReleaseCalendarPage() {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
 
-        const parsed = rawSchedule.map(item => {
+        const parsed = (rawSchedule || []).filter(Boolean).map((item: any) => {
           const epData = (watchedEpisodes || {})[item.showId] || [];
           const watchedEps = (Array.isArray(epData) ? epData : []).filter(e => typeof e === 'object' && e !== null) as any[];
           const isWatched = watchedEps.some(e => e.season === item.season && e.episode === item.episode);
