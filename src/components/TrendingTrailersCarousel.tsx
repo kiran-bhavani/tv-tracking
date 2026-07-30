@@ -6,6 +6,7 @@ import { Play, Film } from 'lucide-react';
 import { getImageUrl } from '@/lib/utils';
 import VideoPlayerModal from './VideoPlayerModal';
 import { fetchTrendingTrailersAction } from '@/app/actions/tmdb';
+import { cacheManager } from '@/lib/cache';
 
 const FALLBACK_TRAILERS = [
   {
