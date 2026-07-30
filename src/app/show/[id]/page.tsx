@@ -19,6 +19,7 @@ import SocialStoryModal from '@/components/SocialStoryModal';
 import ShareStoryButton from '@/components/ShareStoryButton';
 import TriviaQuotesCard from '@/components/TriviaQuotesCard';
 import MdlBadges from '@/components/MdlBadges';
+import TraktShoutsSection from '@/components/TraktShoutsSection';
 import { fetchOmdbDetails } from '@/lib/omdb';
 import { fetchTraktDetails } from '@/lib/trakt';
 import { fetchTvmazeShow } from '@/lib/tvmaze';
@@ -221,6 +222,11 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
 
       {/* Trivia & Iconic Quotes */}
       <TriviaQuotesCard title={show.name} type="show" />
+
+      {/* Trakt, Simkl & Serializd Community Shouts */}
+      <div className="px-4">
+        <TraktShoutsSection type="show" title={show.name} id={show.id} />
+      </div>
 
       {/* Photos & Videos */}
       <MediaGallery 

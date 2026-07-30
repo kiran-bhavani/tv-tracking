@@ -16,6 +16,7 @@ import { fetchTvmazeEpisodeAction } from '@/app/actions/tvmaze';
 import { fetchTmdbEpisodeAction } from '@/app/actions/tmdb';
 import OverviewText from './OverviewText';
 import MediaGallery from './MediaGallery';
+import TraktShoutsSection from './TraktShoutsSection';
 
 interface EpisodeDetailsModalProps {
   showId: number;
@@ -289,6 +290,22 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
               seasonNumber={seasonNumber} 
               episodeNumber={episode.episode_number} 
               cast={episode.guest_stars} 
+            />
+
+            {/* Trakt, Simkl & Serializd Community Shouts */}
+            <TraktShoutsSection 
+              type="episode" 
+              title={showName} 
+              id={showId} 
+              season={seasonNumber} 
+              episode={episode.episode_number} 
+            />
+
+            {/* In-App Discussion / Comments */}
+            <EpisodeComments 
+              showId={showId} 
+              seasonNumber={seasonNumber} 
+              episodeNumber={episode.episode_number} 
             />
 
             {(episodeDetails?.videos?.results?.length > 0 || episodeDetails?.images?.stills?.length > 0) && (
