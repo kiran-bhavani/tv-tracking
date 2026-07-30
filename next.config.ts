@@ -11,6 +11,7 @@ const withPWA = withPWAInit({
 const nextConfig: NextConfig = {
   turbopack: {},
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'image.tmdb.org', port: '', pathname: '/**' },
       { protocol: 'https', hostname: 'api.dicebear.com', port: '', pathname: '/**' },
