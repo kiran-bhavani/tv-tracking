@@ -16,8 +16,8 @@ const getImageUrl = (path: string | null, size: string = 'w500') =>
 export default function WatchlistPage() {
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [activeTab, setActiveTab] = useState<'watchlist' | 'upcoming'>('watchlist');
-  const [sortMode, setSortMode] = useState<'default' | 'alpha' | 'progress'>('default');
-  const [viewMode, setViewMode] = useState<'card' | 'grid'>('card');
+  const viewMode = useStore((state) => state.viewMode || 'card');
+  const setViewMode = useStore((state) => state.setViewMode);
   const watchlistMap = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const removeFromWatchlist = useStore((state) => state.removeFromWatchlist);

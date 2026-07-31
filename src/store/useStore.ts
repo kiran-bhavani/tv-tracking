@@ -40,6 +40,8 @@ interface AppState {
   watchedEpisodes: Record<number, WatchedEpisode[]>; // showId -> array of episode objects
   customLists: CustomList[];
   movieReviews: Record<number, MovieReview>; // movieId -> MovieReview
+  viewMode: 'card' | 'grid';
+  setViewMode: (mode: 'card' | 'grid') => void;
   
   addToWatchlist: (show: WatchlistShow) => void;
   removeFromWatchlist: (showId: number) => void;
@@ -75,6 +77,9 @@ export const useStore = create<AppState>()(
       watchedEpisodes: {},
       customLists: [],
       movieReviews: {},
+      viewMode: 'card',
+
+      setViewMode: (mode) => set({ viewMode: mode }),
 
       addToWatchlist: (show) => set((state) => ({
         watchlist: { ...state.watchlist, [show.id]: show },
