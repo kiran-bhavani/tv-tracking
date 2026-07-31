@@ -337,11 +337,16 @@ export default function SettingsPage() {
       </AnimatePresence>
 
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/[0.06] px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()} className="w-9 h-9 rounded-xl bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors">
-          <ArrowLeft className="w-4 h-4" />
+      <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center gap-3">
+        <button
+          onClick={() => router.back()}
+          className="w-11 h-11 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white hover:bg-white/10 transition-all active:scale-95 shadow-sm"
+          aria-label="Go back"
+          title="Go back"
+        >
+          <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-lg font-black tracking-tight">Settings</h1>
+        <h1 className="text-xl font-black tracking-tight text-white">Settings</h1>
       </header>
 
       <div className="px-4 pt-6 max-w-lg mx-auto space-y-6">

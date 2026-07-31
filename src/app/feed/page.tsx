@@ -38,7 +38,7 @@ export default function FeedPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-32">
       <TopNav title="Activity Feed" />
       
       {!user && (

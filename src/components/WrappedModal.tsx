@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { X, Share2, Sparkles, Tv, Film, Clock, Award, Check } from 'lucide-react';
@@ -17,6 +17,14 @@ export default function WrappedModal({ userName, onClose }: WrappedModalProps) {
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const movieReviews = useStore((state) => state.movieReviews);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   // Compute Stats
   let totalTvMins = 0;

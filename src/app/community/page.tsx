@@ -102,7 +102,7 @@ export default function CommunityPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-32">
       <TopNav title="Community Feed" />
       
       <div className="pt-2 px-4 pb-4 border-b border-border sticky top-14 bg-background/90 backdrop-blur-md z-10 flex items-center gap-2">

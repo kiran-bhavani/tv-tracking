@@ -25,8 +25,8 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   return (
     <div className="min-h-screen bg-background pb-32">
       {/* Search Bar at the top (TV Time style) */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md pt-safe px-4 py-4 border-b border-border">
-        <h1 className="text-2xl font-bold text-foreground mb-4">Discover</h1>
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe px-5 py-3.5 border-b border-white/5 shadow-sm">
+        <h1 className="text-2xl font-black tracking-tight text-white mb-3">Discover</h1>
         <Link href="/search" className="flex items-center gap-3 bg-muted border border-border rounded-full py-3 px-4 text-muted-foreground hover:bg-muted/80 transition">
           <Search className="w-5 h-5" />
           <span>Search shows, movies, users...</span>
@@ -34,7 +34,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       </div>
       
       {/* Toggle */}
-      <div className="px-4 mt-2 mb-3 flex justify-center">
+      <div className="px-4 mt-4 mb-3 flex justify-center">
         <div className="bg-muted p-1 rounded-full flex gap-1">
           <Link href="/discover?type=tv" className={`px-6 py-2 rounded-full font-bold text-sm transition-colors ${!isMovie ? 'bg-accent text-accent-foreground' : 'text-foreground'}`}>
             TV Shows
@@ -78,7 +78,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
         <section>
           <div className="px-4 mb-3 flex justify-between items-end">
             <h2 className="text-xl font-bold text-foreground">Trending {isMovie ? 'Movies' : 'Shows'}</h2>
-            <Link href={`/search?type=${isMovie ? 'movie' : 'tv'}`} className="text-xs text-[var(--accent)] font-semibold hover:underline">See all</Link>
+            <Link href={`/search?type=${isMovie ? 'movie' : 'tv'}`} className="text-xs text-accent font-semibold hover:underline">See all</Link>
           </div>
           <div className="flex overflow-x-auto gap-4 px-4 snap-x snap-mandatory hide-scrollbar">
             {trending.slice(0, 10).map((item: any) => (
@@ -89,18 +89,21 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
 
         {/* Popular Section */}
         <section>
-          <div className="px-6 mb-4 flex justify-between items-end">
+          <div className="px-4 mb-4 flex justify-between items-end">
             <h2 className="text-xl font-bold text-white tracking-tight">Popular Right Now</h2>
           </div>
-          <div className="flex overflow-x-auto gap-4 px-6 snap-x snap-mandatory hide-scrollbar">
-            {popular.map((item: any) => (
+          <div className="flex overflow-x-auto gap-4 px-4 snap-x snap-mandatory hide-scrollbar">
+            {popular.slice(0, 10).map((item: any) => (
               <ShowCard key={item.id} show={{...item, media_type: isMovie ? 'movie' : 'tv'}} />
             ))}
           </div>
         </section>
-        
-        {/* Infinite Genre Rows */}
-        <InfiniteDiscoverRows type={isMovie ? 'movie' : 'tv'} genres={genres} />
+
+        {/* Genres Grid */}
+        <section className="px-4">
+          <h2 className="text-xl font-bold text-foreground mb-4">Browse Genres</h2>
+          <InfiniteDiscoverRows type={isMovie ? 'movie' : 'tv'} genres={genres} />
+        </section>
       </div>
     </div>
   );

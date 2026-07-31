@@ -190,7 +190,7 @@ export default function MoviesWatchlistPage() {
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {currentList.map(show => (
                     <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-md">
-                      <Link href={`/movie/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
+                      <Link href={`/movie/${show.id}`} className="aspect-[2/3] relative w-full bg-muted overflow-hidden">
                         <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         
@@ -230,7 +230,7 @@ export default function MoviesWatchlistPage() {
                       transition={{ duration: 0.3 }}
                       className="bg-card/60 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-lg border border-white/5 group"
                     >
-                      <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-zinc-900">
+                      <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-muted">
                         <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       </Link>
                       

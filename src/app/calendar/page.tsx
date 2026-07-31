@@ -153,7 +153,7 @@ export default function ReleaseCalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-32">
       <TopNav title="Release Calendar" />
 
       <div className="pt-6 flex flex-col gap-8">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Star, X, RotateCcw, Check } from 'lucide-react';
 import { useStore, MovieReview } from '@/store/useStore';
@@ -18,6 +18,14 @@ export default function MovieRatingModal({ movieId, movieTitle, onClose }: Movie
 
   const [rating, setRating] = useState<number>(existingReview?.rating || 4);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
   const [reviewText, setReviewText] = useState<string>(existingReview?.review || '');
   const [isRewatch, setIsRewatch] = useState<boolean>(existingReview?.isRewatch || false);
 

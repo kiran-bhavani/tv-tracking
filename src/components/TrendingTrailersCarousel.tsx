@@ -100,7 +100,7 @@ export default function TrendingTrailersCarousel() {
                 className="object-cover group-hover:scale-105 transition-transform duration-500"
               />
             ) : (
-              <div className="w-full h-full bg-zinc-900 flex items-center justify-center text-xs text-muted-foreground">
+              <div className="w-full h-full bg-muted flex items-center justify-center text-xs text-muted-foreground">
                 {item.title}
               </div>
             )}

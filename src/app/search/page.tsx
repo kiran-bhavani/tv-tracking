@@ -63,8 +63,8 @@ function SearchContent() {
   }, [debouncedQuery, initialType]);
 
   return (
-    <div className="min-h-screen bg-background pt-safe pb-24">
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md px-4 py-4 border-b border-border">
+    <div className="min-h-screen bg-background pt-safe pb-32">
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl px-4 py-4 border-b border-white/5 shadow-sm">
         <div className="relative flex items-center">
           <SearchIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
           <input
@@ -74,7 +74,7 @@ function SearchContent() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             autoFocus
-            className="w-full bg-muted border border-border rounded-full py-3 pl-11 pr-10 text-foreground placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-accent transition"
+            className="w-full bg-muted border border-border rounded-full py-3 pl-11 pr-10 text-foreground placeholder-muted-foreground focus:outline-none focus:ring-1 focus:ring-accent transition"
           />
           {query && (
             <button

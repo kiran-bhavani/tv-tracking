@@ -26,6 +26,15 @@ export default function SearchAutoCompleteModal({ isOpen, onClose }: { isOpen: b
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (!debouncedQuery.trim()) {
       setResults([]);
       return;

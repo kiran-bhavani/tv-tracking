@@ -85,6 +85,14 @@ export default function ManageListModal({ list, onClose, onShare }: ManageListMo
   const updateList = useStore(state => state.updateList);
   const deleteList = useStore(state => state.deleteList);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
   // Load existing shows if in Edit mode
   useEffect(() => {
     async function loadShows() {

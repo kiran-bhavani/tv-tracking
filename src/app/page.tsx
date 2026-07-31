@@ -177,7 +177,7 @@ export default function WatchlistPage() {
 
                   return (
                     <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-white/5 shadow-md">
-                      <Link href={`/show/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
+                      <Link href={`/show/${show.id}`} className="aspect-[2/3] relative w-full bg-muted overflow-hidden">
                         <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
                         
@@ -250,7 +250,7 @@ export default function WatchlistPage() {
                     className="bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-xl border border-white/5 group"
                   >
                     {/* Poster */}
-                    <Link href={`/${show.type === 'movie' ? 'movie' : 'show'}/${show.id}`} className="w-28 relative flex-shrink-0 bg-zinc-900">
+                    <Link href={`/${show.type === 'movie' ? 'movie' : 'show'}/${show.id}`} className="w-28 relative flex-shrink-0 bg-muted">
                       <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                     </Link>
                     
@@ -357,7 +357,7 @@ export default function WatchlistPage() {
                         transition={{ duration: 0.3 }}
                         className="bg-card/20 backdrop-blur-md rounded-2xl overflow-hidden flex border border-white/5 group opacity-80 hover:opacity-100 transition-opacity"
                       >
-                        <Link href={`/show/${show.id}`} className="w-20 relative flex-shrink-0 bg-zinc-900 grayscale group-hover:grayscale-0 transition-all duration-500">
+                        <Link href={`/show/${show.id}`} className="w-20 relative flex-shrink-0 bg-muted grayscale group-hover:grayscale-0 transition-all duration-500">
                           <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover" />
                         </Link>
                         
