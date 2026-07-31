@@ -31,7 +31,7 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
     const text = response.text?.trim() || "";
@@ -56,7 +56,7 @@ export async function generateTriviaAction(title: string, type: 'show' | 'movie'
 
   try {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
     const text = response.text?.trim() || "";
