@@ -42,6 +42,12 @@ interface AppState {
   movieReviews: Record<number, MovieReview>; // movieId -> MovieReview
   viewMode: 'card' | 'grid';
   setViewMode: (mode: 'card' | 'grid') => void;
+  showsSortMode: 'default' | 'alpha' | 'progress';
+  setShowsSortMode: (mode: 'default' | 'alpha' | 'progress') => void;
+  showsActiveTab: 'watchlist' | 'upcoming';
+  setShowsActiveTab: (tab: 'watchlist' | 'upcoming') => void;
+  moviesSortMode: 'default' | 'alpha' | 'unwatched_first';
+  setMoviesSortMode: (mode: 'default' | 'alpha' | 'unwatched_first') => void;
   
   addToWatchlist: (show: WatchlistShow) => void;
   removeFromWatchlist: (showId: number) => void;
@@ -78,8 +84,14 @@ export const useStore = create<AppState>()(
       customLists: [],
       movieReviews: {},
       viewMode: 'card',
+      showsSortMode: 'default',
+      showsActiveTab: 'watchlist',
+      moviesSortMode: 'default',
 
       setViewMode: (mode) => set({ viewMode: mode }),
+      setShowsSortMode: (mode) => set({ showsSortMode: mode }),
+      setShowsActiveTab: (tab) => set({ showsActiveTab: tab }),
+      setMoviesSortMode: (mode) => set({ moviesSortMode: mode }),
 
       addToWatchlist: (show) => set((state) => ({
         watchlist: { ...state.watchlist, [show.id]: show },
