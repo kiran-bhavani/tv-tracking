@@ -64,21 +64,29 @@ export default function WatchlistPage() {
     <div className="min-h-screen bg-background pb-32">
       {/* Top Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe shadow-sm border-b border-white/5">
-        <div className="px-6 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-black tracking-tight text-white">BingePulse</h1>
+        <div className="px-5 py-3.5 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-black tracking-tight text-white">Shows</h1>
+            {mounted && (
+              <span className="text-[10px] font-black uppercase tracking-wider bg-accent/15 text-accent px-2 py-0.5 rounded-full border border-accent/30">
+                {activeShows.length} Active
+              </span>
+            )}
+          </div>
+
           <div className="flex items-center gap-2">
             {/* View Mode Toggle (Card vs Grid) */}
             <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1">
               <button
                 onClick={() => setViewMode('card')}
-                className={`p-1.5 rounded-full transition-colors ${viewMode === 'card' ? 'bg-accent text-accent-foreground' : 'text-white/50 hover:text-white'}`}
+                className={`p-1.5 rounded-full transition-all ${viewMode === 'card' ? 'bg-accent text-accent-foreground shadow-md' : 'text-zinc-400 hover:text-white'}`}
                 title="Detailed Cards View"
               >
                 <List className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-accent text-accent-foreground' : 'text-white/50 hover:text-white'}`}
+                className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-foreground shadow-md' : 'text-zinc-400 hover:text-white'}`}
                 title="Compact Poster Grid View"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
@@ -88,7 +96,7 @@ export default function WatchlistPage() {
             {/* Sort Toggle */}
             <button
               onClick={cycleSort}
-              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
               title="Change sort order"
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
@@ -97,20 +105,40 @@ export default function WatchlistPage() {
           </div>
         </div>
         
-        {/* Tabs */}
-        <div className="px-6 flex gap-8">
-          {(['watchlist', 'upcoming'] as const).map(tab => (
+        {/* iOS Segmented Pill Control for Watchlist vs Upcoming */}
+        <div className="px-4 pb-3 flex justify-center">
+          <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1 w-full max-w-xs relative">
             <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`pb-3 text-[11px] tracking-wider font-bold uppercase relative transition-colors ${activeTab === tab ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
+              onClick={() => setActiveTab('watchlist')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-black tracking-wide transition-colors relative z-10 text-center ${
+                activeTab === 'watchlist' ? 'text-accent-foreground' : 'text-zinc-400 hover:text-white'
+              }`}
             >
-              {tab}
-              {activeTab === tab && (
-                <motion.div layoutId="tab-indicator" className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent rounded-t-full shadow-[0_0_8px_rgba(251,191,36,0.6)]" />
+              Watchlist
+              {activeTab === 'watchlist' && (
+                <motion.div
+                  layoutId="shows-tab-pill"
+                  className="absolute inset-0 bg-accent rounded-full shadow-md -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
               )}
             </button>
-          ))}
+            <button
+              onClick={() => setActiveTab('upcoming')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-black tracking-wide transition-colors relative z-10 text-center ${
+                activeTab === 'upcoming' ? 'text-accent-foreground' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Upcoming
+              {activeTab === 'upcoming' && (
+                <motion.div
+                  layoutId="shows-tab-pill"
+                  className="absolute inset-0 bg-accent rounded-full shadow-md -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+            </button>
+          </div>
         </div>
       </div>
       
