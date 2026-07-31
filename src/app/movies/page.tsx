@@ -18,7 +18,7 @@ export default function MoviesWatchlistPage() {
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [showRoulette, setShowRoulette] = useState(false);
   const sortMode = useStore((state) => state.moviesSortMode || 'default');
-  const setSortMode = useStore((state) => state.setMoviesSortMode);
+  const setMoviesSortMode = useStore((state) => state.setMoviesSortMode);
   const viewMode = useStore((state) => state.viewMode || 'card');
   const setViewMode = useStore((state) => state.setViewMode);
 
@@ -58,7 +58,9 @@ export default function MoviesWatchlistPage() {
 
   const cycleSort = () => {
     const modes: SortMode[] = ['default', 'alpha', 'unwatched_first'];
-    setSortMode(prev => modes[(modes.indexOf(prev) + 1) % modes.length]);
+    const currentIndex = modes.indexOf(sortMode as SortMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setMoviesSortMode(nextMode);
   };
 
   return (

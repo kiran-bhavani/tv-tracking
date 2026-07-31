@@ -60,7 +60,9 @@ export default function WatchlistPage() {
   const sortLabels = { default: 'Added', alpha: 'A–Z', progress: 'Progress' };
   const cycleSort = () => {
     const modes = ['default', 'alpha', 'progress'] as const;
-    setSortMode(prev => modes[(modes.indexOf(prev) + 1) % modes.length]);
+    const currentIndex = modes.indexOf(sortMode as any);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setSortMode(nextMode);
   };
 
   return (
