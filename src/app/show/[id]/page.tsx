@@ -72,7 +72,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
   const primaryNetwork = show.networks?.[0];
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-32">
       {/* Hero Section */}
       <div className="relative h-72 w-full">
         <Image

@@ -130,7 +130,7 @@ export default function ProfilePage() {
     .slice(0, 3);
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-32">
       <AnimatePresence>
         {toast && <Toast key="toast" message={toast.message} type={toast.type} onDismiss={() => setToast(null)} />}
       </AnimatePresence>

@@ -63,7 +63,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
   const movieRating = extractMovieRating(movie);
 
   return (
-    <div className="min-h-screen bg-background pb-10">
+    <div className="min-h-screen bg-background pb-32">
       {/* Hero Section */}
       <div className="relative h-72 w-full">
         <Image
