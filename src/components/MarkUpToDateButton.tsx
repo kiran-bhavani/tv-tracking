@@ -101,7 +101,7 @@ export default function MarkUpToDateButton({ showId, seasons }: { showId: number
       <button
         onClick={() => setShowConfirm(true)}
         disabled={isLoading}
-        className="w-14 flex-shrink-0 flex items-center justify-center bg-card border border-border rounded-2xl shadow-xl hover:bg-muted/80 transition-colors"
+        className="w-14 h-14 flex-shrink-0 flex items-center justify-center bg-muted border border-border rounded-2xl shadow-lg hover:bg-muted/80 transition-all active:scale-95"
         aria-label="Mark all episodes up to date"
         title="Mark All Episodes Up to Date"
       >

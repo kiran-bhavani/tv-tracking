@@ -30,7 +30,7 @@ export default function ShareStoryButton({
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="w-12 h-12 flex-shrink-0 bg-muted text-foreground rounded-xl flex items-center justify-center font-bold text-sm shadow-lg hover:bg-muted/80 transition-colors border border-border"
+        className="w-14 h-14 flex-shrink-0 bg-muted text-foreground rounded-2xl flex items-center justify-center font-bold text-sm shadow-lg hover:bg-muted/80 transition-all active:scale-95 border border-border"
         aria-label="Share Story Card"
         title="Share Instagram/Twitter Story Card"
       >
