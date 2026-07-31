@@ -15,7 +15,10 @@ export async function fetchOmdbEpisodeDetails(showName: string, seasonNumber: nu
     return null;
   }
   try {
-    const res = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&t=${encodeURIComponent(showName)}&Season=${seasonNumber}&Episode=${episodeNumber}`);
+    const res = await fetch(
+      `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&t=${encodeURIComponent(showName)}&Season=${seasonNumber}&Episode=${episodeNumber}`,
+      { next: { revalidate: 86400 } }
+    );
     
     if (!res.ok) return null;
     
@@ -42,7 +45,10 @@ export async function fetchOmdbDetails(title: string, type: 'movie' | 'tv'): Pro
   }
   try {
     const searchType = type === 'movie' ? 'movie' : 'series';
-    const res = await fetch(`https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&t=${encodeURIComponent(title)}&type=${searchType}`);
+    const res = await fetch(
+      `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&t=${encodeURIComponent(title)}&type=${searchType}`,
+      { next: { revalidate: 86400 } }
+    );
     
     if (!res.ok) return null;
     

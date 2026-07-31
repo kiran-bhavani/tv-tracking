@@ -11,7 +11,7 @@ import {
   signOut
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { Tv, Loader2, Key } from 'lucide-react';
+import { Tv, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
