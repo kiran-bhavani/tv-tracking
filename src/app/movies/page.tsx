@@ -272,6 +272,7 @@ export default function MoviesWatchlistPage() {
                   ))}
                 </AnimatePresence>
               );
+            })()}
             <ForYouRecommendations type="movie" />
           </>
         )}
