@@ -17,6 +17,7 @@ type SortMode = 'default' | 'alpha' | 'unwatched_first';
 export default function MoviesWatchlistPage() {
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [showRoulette, setShowRoulette] = useState(false);
+  const [sortMode, setSortMode] = useState<SortMode>('default');
   const viewMode = useStore((state) => state.viewMode || 'card');
   const setViewMode = useStore((state) => state.setViewMode);
 
