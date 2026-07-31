@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import TopNav from '@/components/TopNav';
 import { useStore } from '@/store/useStore';
-import { Calendar as CalendarIcon, Check, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Plus, Check } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getImageUrl } from '@/lib/utils';
@@ -138,11 +138,11 @@ export default function ReleaseCalendarPage() {
 
                 <button
                   onClick={() => handleMarkWatched(item)}
-                  className="bg-accent text-accent-foreground hover:bg-accent/80 font-bold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0 shadow-md"
+                  className="bg-emerald-500 hover:bg-emerald-400 text-black font-extrabold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1.5 flex-shrink-0 shadow-md shadow-emerald-500/20 active:scale-95"
                   title="Mark this episode as watched"
                 >
-                  <Plus className="w-4 h-4 stroke-[3]" />
-                  <span>Mark Watched</span>
+                  <Check className="w-4 h-4 stroke-[3]" />
+                  <span>+ Mark Watched</span>
                 </button>
               </div>
             );

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Tv, ArrowUpDown, CheckCircle2, LayoutGrid, List } from 'lucide-react';
+import { X, Tv, ArrowUpDown, CheckCircle2, LayoutGrid, List, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
@@ -154,9 +154,9 @@ export default function WatchlistPage() {
                             toggleEpisodeWatched(show.id, { id: nextId, season: nextSeason, episode: nextEp });
                           }}
                           title={`Mark S${String(nextSeason).padStart(2,'0')}E${String(nextEp).padStart(2,'0')} watched`}
-                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg opacity-90 hover:scale-110 transition-transform"
+                          className="absolute top-2 right-2 w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-95 hover:scale-110 active:scale-95 transition-all"
                         >
-                          <CheckCircle2 className="w-4 h-4" />
+                          <Plus className="w-4.5 h-4.5 stroke-[3]" />
                         </button>
 
                         <div className="absolute bottom-2 left-2 right-2">

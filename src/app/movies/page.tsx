@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { X, Check, Dices, ArrowUpDown, Film, LayoutGrid, List } from 'lucide-react';
+import { X, Check, Dices, ArrowUpDown, Film, LayoutGrid, List, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/store/useStore';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
@@ -129,10 +129,10 @@ export default function MoviesWatchlistPage() {
                           e.preventDefault();
                           markMovieWatched(show.id);
                         }}
-                        title="Mark as watched"
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center shadow-lg opacity-90 hover:scale-110 transition-transform"
+                        title="Mark movie as watched"
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-95 hover:scale-110 active:scale-95 transition-all"
                       >
-                        <Check className="w-4 h-4 stroke-[3]" />
+                        <Plus className="w-4.5 h-4.5 stroke-[3]" />
                       </button>
                     </Link>
 
@@ -154,28 +154,28 @@ export default function MoviesWatchlistPage() {
                   initial={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9, x: -100 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-card rounded-xl overflow-hidden flex shadow-lg"
+                  className="bg-card/60 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-lg border border-white/5 group"
                 >
-                  <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-gray-800">
-                    <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover" />
+                  <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-zinc-900">
+                    <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                   </Link>
                   
                   <div className="flex-1 flex flex-col">
-                    <div className="p-3 flex gap-2 items-center">
+                    <div className="p-3.5 flex gap-2 items-center">
                       <Link href={`/movie/${show.id}`} className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground text-base truncate">{show.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Movie</p>
-                        <p className="text-sm text-gray-200 font-medium truncate mt-0.5">Ready to watch</p>
+                        <h3 className="font-bold text-foreground text-base truncate group-hover:text-accent transition-colors">{show.name}</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Movie</p>
+                        <p className="text-xs text-emerald-400 font-semibold truncate mt-1">Ready to watch</p>
                       </Link>
 
                       <div className="flex flex-col gap-2 flex-shrink-0">
                         {/* Mark Watched */}
                         <button 
                           onClick={() => markMovieWatched(show.id)}
-                          title="Mark as watched"
-                          className="w-10 h-10 bg-accent/15 rounded-full flex justify-center items-center border border-accent/30 text-accent hover:bg-accent hover:text-accent-foreground transition-colors"
+                          title="Mark movie as watched"
+                          className="w-10 h-10 bg-muted rounded-full flex justify-center items-center border border-border text-foreground hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:text-emerald-400 transition-all active:scale-95 shadow-sm"
                         >
-                          <Check className="w-5 h-5" />
+                          <Plus className="w-5 h-5 stroke-[2.5]" />
                         </button>
                         {/* Remove from watchlist */}
                         <button 
