@@ -9,7 +9,7 @@ export async function translateText(text: string) {
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
 
   try {
     const result = await model.generateContent(`Translate the following TV show or movie description into English. Ensure the tone remains engaging and natural. If it is already in English, simply return the original text. Do not include any conversational filler or quotes around it, just the translation:\n\n${text}`);

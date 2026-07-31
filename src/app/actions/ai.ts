@@ -20,7 +20,7 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
   
   let prompt = "";
   if (type === 'episode' && season !== undefined && episode !== undefined) {
@@ -50,7 +50,7 @@ export async function generateTriviaAction(title: string, type: 'show' | 'movie'
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
   const mediaType = type === 'movie' ? 'movie' : 'TV show';
   const prompt = `Give me 2 fascinating, real, verified behind-the-scenes trivia facts about the ${mediaType} "${title}". Return ONLY a JSON array of 2 strings like: ["Fact 1", "Fact 2"]. Do not include markdown codeblocks or extra text.`;
 
