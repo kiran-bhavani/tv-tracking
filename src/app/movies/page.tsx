@@ -107,21 +107,11 @@ export default function MoviesWatchlistPage() {
               <ArrowUpDown className="w-3.5 h-3.5" />
               {sortLabels[sortMode]}
             </button>
-
-            {/* Roulette Button */}
-            <button 
-              onClick={() => setShowRoulette(true)}
-              className="flex items-center gap-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm"
-              title="Spin Movie Roulette"
-            >
-              <Dices className="w-3.5 h-3.5" />
-              <span>Roulette</span>
-            </button>
           </div>
         </div>
         
         {/* iOS Segmented Pill Control for Watchlist vs Watched */}
-        <div className="px-4 pb-3 flex justify-center">
+        <div className="px-4 pb-3 flex justify-center items-center gap-2.5">
           <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1 w-full max-w-xs relative">
             <button
               onClick={() => setActiveTab('watchlist')}
@@ -154,6 +144,16 @@ export default function MoviesWatchlistPage() {
               )}
             </button>
           </div>
+
+          {/* Premium Roulette Action Button */}
+          <button
+            onClick={() => setShowRoulette(true)}
+            className="w-9 h-9 rounded-full bg-accent/20 border border-accent/40 text-accent flex items-center justify-center transition-all active:scale-95 shadow-sm shadow-accent/10 hover:bg-accent hover:text-black flex-shrink-0"
+            title="Spin Movie Roulette"
+            aria-label="Spin Movie Roulette"
+          >
+            <Dices className="w-4.5 h-4.5" />
+          </button>
         </div>
       </div>
       
@@ -228,23 +228,23 @@ export default function MoviesWatchlistPage() {
                       initial={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.9, x: -100 }}
                       transition={{ duration: 0.3 }}
-                      className="bg-card/60 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-lg border border-white/5 group"
+                      className="bg-card/40 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-xl border border-white/5 group"
                     >
-                      <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-muted">
+                      <Link href={`/movie/${show.id}`} className="w-28 relative flex-shrink-0 bg-muted">
                         <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       </Link>
                       
-                      <div className="flex-1 flex flex-col">
-                        <div className="p-3.5 flex gap-2 items-center">
-                          <Link href={`/movie/${show.id}`} className="flex-1 min-w-0">
-                            <h3 className="font-bold text-foreground text-base truncate group-hover:text-accent transition-colors">{show.name}</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">Movie</p>
-                            <p className={`text-xs font-semibold truncate mt-1 ${isMovieWatched(show.id) ? 'text-accent' : 'text-emerald-400'}`}>
+                      <div className="flex-1 flex flex-col min-w-0">
+                        <div className="p-4 flex gap-3 h-full">
+                          <Link href={`/movie/${show.id}`} className="flex-1 min-w-0 flex flex-col justify-center">
+                            <h3 className="font-bold text-white text-base leading-tight truncate group-hover:text-accent transition-colors">{show.name}</h3>
+                            <p className="text-[11px] tracking-wide uppercase text-accent font-semibold mt-1.5">Movie</p>
+                            <p className="text-xs text-white/50 font-medium truncate mt-0.5">
                               {isMovieWatched(show.id) ? '✓ Completed' : 'Ready to watch'}
                             </p>
                           </Link>
 
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                          <div className="flex flex-col gap-2 flex-shrink-0 self-center">
                             {/* Mark Watched Toggle */}
                             <button 
                               onClick={() => markMovieWatched(show.id)}
