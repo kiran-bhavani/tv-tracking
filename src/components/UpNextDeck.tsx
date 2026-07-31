@@ -4,7 +4,7 @@ import { useStore, WatchlistShow } from '@/store/useStore';
 import { logActivity } from '@/lib/activity';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, getSyntheticEpisodeId } from '@/lib/utils';
 import { Check, Play, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -50,7 +50,7 @@ export default function UpNextDeck() {
   if (upNextList.length === 0) return null;
 
   const handleMarkWatched = (item: typeof upNextList[0]) => {
-    const epId = item.show.id * 1000 + item.episode;
+    const epId = getSyntheticEpisodeId(item.show.id, item.season, item.episode);
     logActivity(item.show.id, item.show.name, item.season, item.episode, `Episode ${item.episode}`);
     toggleEpisodeWatched(item.show.id, {
       id: epId,

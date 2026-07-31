@@ -10,6 +10,8 @@ import ForYouRecommendations from '@/components/ForYouRecommendations';
 import UpcomingTab from '@/components/UpcomingTab';
 import UpNextDeck from '@/components/UpNextDeck';
 
+import { getSyntheticEpisodeId } from '@/lib/utils';
+
 const getImageUrl = (path: string | null, size: string = 'w500') => 
   path ? `https://image.tmdb.org/t/p/${size}${path}` : '/placeholder.png';
 
@@ -171,7 +173,7 @@ export default function WatchlistPage() {
                   const last = sorted[sorted.length - 1];
                   const nextSeason = last?.season ?? 1;
                   const nextEp = (last?.episode ?? 0) + 1;
-                  const nextId = nextSeason * 10000 + nextEp;
+                  const nextId = getSyntheticEpisodeId(show.id, nextSeason, nextEp);
 
                   return (
                     <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-white/5 shadow-md">

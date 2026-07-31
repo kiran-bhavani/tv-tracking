@@ -45,3 +45,9 @@ export function extractMovieRating(movieData: any): string | null {
   }
   return null;
 }
+
+export function getSyntheticEpisodeId(showId: number, season: number, episode: number): number {
+  const safeSeason = Math.max(1, season || 1);
+  const safeEp = Math.max(1, episode || 1);
+  return safeSeason * 10000 + safeEp;
+}

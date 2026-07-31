@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -36,6 +36,14 @@ export default function MovieRouletteModal({ onClose }: MovieRouletteModalProps)
   const [isSpinning, setIsSpinning] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState<any>(null);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const handleSpin = async () => {
     setIsSpinning(true);

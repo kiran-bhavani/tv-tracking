@@ -245,7 +245,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
       <ShowComments id={show.id} type="show" title={show.name} />
 
       {/* Similar Shows */}
-      {show.similar?.results?.length > 0 && (
+      {similarShows.length > 0 && (
         <div className="mt-8">
           <h3 className="text-lg font-bold text-foreground px-4 mb-3">Similar Shows</h3>
           <div className="flex overflow-x-auto gap-4 px-4 pb-4 snap-x snap-mandatory hide-scrollbar">

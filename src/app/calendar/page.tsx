@@ -88,7 +88,7 @@ export default function ReleaseCalendarPage() {
   const laterItems = scheduleItems.filter(i => i.daysOffset > 14);
 
   const handleMarkWatched = (item: typeof scheduleItems[0]) => {
-    const epId = item.showId * 10000 + item.episode;
+    const epId = getSyntheticEpisodeId(item.showId, item.season, item.episode);
     logActivity(item.showId, item.showName, item.season, item.episode, item.episodeName || `Episode ${item.episode}`);
     toggleEpisodeWatched(item.showId, {
       id: epId,

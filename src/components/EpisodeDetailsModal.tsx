@@ -38,6 +38,15 @@ export default function EpisodeDetailsModal({ showId, allEpisodes, initialEpisod
 
   const episode = allEpisodes[currentIndex];
   const seasonNumber = episode?.season_number || 1;
+  const episodeNumber = episode?.episode_number || 1;
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const watchlist = useStore((state) => state.watchlist);
