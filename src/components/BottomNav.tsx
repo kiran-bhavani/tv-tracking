@@ -21,8 +21,8 @@ export default function BottomNav() {
   }
 
   return (
-    <div className="fixed bottom-3 left-0 right-0 w-full px-4 pb-safe pointer-events-none z-50 flex justify-center">
-      <nav className="pointer-events-auto w-full max-w-md ios-glass-pill rounded-full py-2 px-3 flex justify-around items-center shadow-2xl shadow-black/80">
+    <div className="fixed bottom-[max(0.5rem,env(safe-area-inset-bottom))] left-0 right-0 w-full px-3 pointer-events-none z-50 flex justify-center">
+      <nav className="pointer-events-auto w-full max-w-md ios-glass-pill rounded-full py-1.5 px-2 flex justify-around items-center shadow-2xl shadow-black/90">
         {navItems.map((item) => {
           const isActive = pathname === item.path;
           const Icon = item.icon;

@@ -23,7 +23,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
   const genres = genresData.genres || [];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-32">
       {/* Search Bar at the top (TV Time style) */}
       <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md pt-safe px-4 py-4 border-b border-border">
         <h1 className="text-2xl font-bold text-foreground mb-4">Discover</h1>

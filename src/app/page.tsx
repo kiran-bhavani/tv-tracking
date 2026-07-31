@@ -61,7 +61,7 @@ export default function WatchlistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32">
       {/* Top Header */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe shadow-sm border-b border-white/5">
         <div className="px-6 py-4 flex justify-between items-center">
