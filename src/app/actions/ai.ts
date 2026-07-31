@@ -15,7 +15,8 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
 
   // 2. Fallback to Gemini AI if Wikipedia fails (or if it's an episode, since Wiki for episodes is sparse)
   if (!process.env.GEMINI_API_KEY) {
-    return null;
+    console.warn("GEMINI_API_KEY is not defined in environment variables.");
+    return { source: 'error', overview: 'Missing API Key. Please configure GEMINI_API_KEY in Vercel settings.' };
   }
 
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -38,15 +39,16 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
       return { source: 'ai', overview: text };
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
     console.error("AI Generation error:", error);
-    return null;
+    return { source: 'error', overview: `AI Error: ${error.message || 'Unknown error'}` };
   }
 }
 
 export async function generateTriviaAction(title: string, type: 'show' | 'movie') {
   if (!process.env.GEMINI_API_KEY) {
-    return null;
+    console.warn("GEMINI_API_KEY is not defined in environment variables.");
+    return ["Missing API Key. Please configure GEMINI_API_KEY in Vercel settings.", "Missing API Key."];
   }
 
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -65,9 +67,9 @@ export async function generateTriviaAction(title: string, type: 'show' | 'movie'
       return facts;
     }
     return null;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Trivia AI Generation error:", error);
-    return null;
+    return [`AI Error: ${error.message || 'Unknown error'}`, "AI Error"];
   }
 }
 
