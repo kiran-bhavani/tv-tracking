@@ -319,18 +319,18 @@ export default function WatchlistPage() {
             )}
 
             {activeTab === 'watchlist' && activeShows.length === 0 && (
-              <div className="text-center text-muted-foreground py-12 flex flex-col items-center gap-4">
-                <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mb-2">
-                  <Tv className="w-10 h-10 text-gray-600" />
+              <div className="ios-glass rounded-3xl p-8 my-6 text-center flex flex-col items-center gap-3 border border-white/10 shadow-2xl">
+                <div className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-1 shadow-lg shadow-accent/10">
+                  <Tv className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-foreground">
-                  You&apos;re all caught up!
+                <h3 className="text-xl font-black text-white">
+                  You&apos;re All Caught Up!
                 </h3>
-                <p className="text-sm">
-                  Add some shows to your watchlist.
+                <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
+                  You have completed all active shows in your watchlist.
                 </p>
-                <Link href="/discover" className="mt-4 px-8 py-3 bg-accent text-accent-foreground rounded-full font-bold">
-                  Discover Shows
+                <Link href="/discover" className="mt-3 px-6 py-3 bg-accent text-accent-foreground rounded-full font-black text-sm transition-all shadow-lg shadow-accent/20 hover:bg-accent/90 active:scale-95">
+                  + Discover Trending Shows
                 </Link>
               </div>
             )}
