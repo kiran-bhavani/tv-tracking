@@ -80,7 +80,7 @@ export default function ShowComments({ id, type, title }: ShowCommentsProps) {
           fetchRedditComments(title),
           fetchSocialComments(type, title, id),
           fetchJikanAnimeReviews(title),
-          fetchMetacriticCriticReviews(title, type)
+          fetchMetacriticCriticReviews(title, type, id)
         ]);
 
         const mappedReddit = reddit.map(r => ({

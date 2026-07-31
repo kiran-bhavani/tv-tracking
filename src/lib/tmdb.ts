@@ -119,3 +119,11 @@ export async function getCollectionDetails(collectionId: string | number) {
   return fetchTMDB(`/collection/${collectionId}?language=en-US`);
 }
 
+export async function getShowReviews(id: string | number) {
+  return fetchTMDB(`/tv/${id}/reviews`);
+}
+
+export async function getMovieReviews(id: string | number) {
+  return fetchTMDB(`/movie/${id}/reviews`);
+}
+
