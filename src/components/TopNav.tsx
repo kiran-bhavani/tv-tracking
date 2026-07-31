@@ -5,8 +5,11 @@ import { Bell, Settings, Search, Users, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import SearchAutoCompleteModal from './SearchAutoCompleteModal';
 
+import { useStore } from '@/store/useStore';
+
 export default function TopNav({ title = "BingePulse" }: { title?: string }) {
   const [showSearch, setShowSearch] = useState(false);
+  const unreadCount = useStore(state => state.notifications.filter(n => !n.read).length);
 
   return (
     <>
@@ -46,7 +49,9 @@ export default function TopNav({ title = "BingePulse" }: { title?: string }) {
             aria-label="Notifications"
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent rounded-full border border-black animate-pulse"></span>
+            {unreadCount > 0 && (
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-accent rounded-full border border-black animate-pulse"></span>
+            )}
           </Link>
 
           <Link 

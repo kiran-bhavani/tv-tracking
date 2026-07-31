@@ -35,6 +35,18 @@ export interface CustomList {
   isRanked?: boolean;
 }
 
+export interface AppNotification {
+  id: string;
+  type: 'upcoming' | 'system' | 'social';
+  title: string;
+  message: string;
+  timestamp: string; // ISO string
+  read: boolean;
+  targetUrl?: string;
+  iconBg?: string;
+  iconColor?: string;
+}
+
 interface AppState {
   watchlist: Record<number, WatchlistShow>;
   watchedEpisodes: Record<number, WatchedEpisode[]>; // showId -> array of episode objects
@@ -82,6 +94,12 @@ interface AppState {
   timezone: string;
   isRegionOverridden: boolean;
   setRegionPreferences: (countryCode: string, language: string, timezone: string, isOverridden?: boolean) => void;
+
+  notifications: AppNotification[];
+  addNotification: (notif: AppNotification) => void;
+  markNotificationRead: (id: string) => void;
+  markAllNotificationsRead: () => void;
+  clearNotifications: () => void;
 }
 
 export const useStore = create<AppState>()(
@@ -100,6 +118,7 @@ export const useStore = create<AppState>()(
       language: 'en-US',
       timezone: 'America/New_York',
       isRegionOverridden: false,
+      notifications: [],
 
       setRegionPreferences: (countryCode, language, timezone, isOverridden = true) => 
         set({ countryCode, language, timezone, isRegionOverridden: isOverridden }),
@@ -108,6 +127,19 @@ export const useStore = create<AppState>()(
       setShowsActiveTab: (tab) => set({ showsActiveTab: tab }),
       setMoviesSortMode: (mode) => set({ moviesSortMode: mode }),
       setMoviesActiveTab: (tab) => set({ moviesActiveTab: tab }),
+
+      addNotification: (notif) => set((state) => {
+        // Prevent duplicate IDs
+        if (state.notifications.some(n => n.id === notif.id)) return state;
+        return { notifications: [notif, ...state.notifications] };
+      }),
+      markNotificationRead: (id) => set((state) => ({
+        notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n)
+      })),
+      markAllNotificationsRead: () => set((state) => ({
+        notifications: state.notifications.map(n => ({ ...n, read: true }))
+      })),
+      clearNotifications: () => set({ notifications: [] }),
 
       addToWatchlist: (show) => set((state) => ({
         watchlist: { ...state.watchlist, [show.id]: show },

@@ -1,54 +1,36 @@
 "use client";
 
-import { useState } from 'react';
-import { ArrowLeft, Bell, Star, Film } from 'lucide-react';
+import { ArrowLeft, Bell, Tv, Users, AlertCircle, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useStore, AppNotification } from '@/store/useStore';
+import { formatDistanceToNow } from 'date-fns';
 
-// Mock notifications since we don't have a backend trigger yet
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    type: 'welcome',
-    title: 'Welcome to TV Time!',
-    message: 'Your profile is all set up. Start tracking your favorite shows now.',
-    time: 'Just now',
-    read: false,
-    icon: Star,
-    color: 'text-yellow-500',
-    bg: 'bg-yellow-500/10'
-  },
-  {
-    id: 2,
-    type: 'feature',
-    title: 'Progressive Web App Ready',
-    message: 'You can now install TV Time to your homescreen for a native app experience.',
-    time: '2 hours ago',
-    read: true,
-    icon: Bell,
-    color: 'text-accent',
-    bg: 'bg-accent/10'
-  },
-  {
-    id: 3,
-    type: 'recommendation',
-    title: 'New Sci-Fi Recommendations',
-    message: 'Based on your likes, we think you might enjoy Severance on Apple TV+.',
-    time: '1 day ago',
-    read: true,
-    icon: Film,
-    color: 'text-purple-500',
-    bg: 'bg-purple-500/10'
+const getIconForType = (type: string) => {
+  switch (type) {
+    case 'upcoming': return Tv;
+    case 'social': return Users;
+    default: return Bell;
   }
-];
+};
 
 export default function NotificationsPage() {
   const router = useRouter();
-  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const notifications = useStore(state => state.notifications);
+  const markAllNotificationsRead = useStore(state => state.markAllNotificationsRead);
+  const markNotificationRead = useStore(state => state.markNotificationRead);
+  const clearNotifications = useStore(state => state.clearNotifications);
 
-  const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const handleNotificationClick = (notif: AppNotification) => {
+    if (!notif.read) {
+      markNotificationRead(notif.id);
+    }
+    if (notif.targetUrl) {
+      router.push(notif.targetUrl);
+    }
   };
+
+  const hasUnread = notifications.some(n => !n.read);
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -57,11 +39,15 @@ export default function NotificationsPage() {
           <ArrowLeft className="w-5 h-5" />
         </button>
         <h1 className="text-xl font-extrabold tracking-tight flex-1">Notifications</h1>
-        {notifications.some(n => !n.read) && (
-          <button onClick={markAllRead} className="text-xs font-bold text-accent hover:opacity-80">
-            Mark all read
+        {hasUnread ? (
+          <button onClick={markAllNotificationsRead} className="text-xs font-bold text-accent hover:opacity-80 flex items-center gap-1">
+            <Check className="w-3 h-3" /> Mark all read
           </button>
-        )}
+        ) : notifications.length > 0 ? (
+           <button onClick={clearNotifications} className="text-xs font-bold text-muted-foreground hover:text-red-400">
+            Clear all
+          </button>
+        ) : null}
       </header>
 
       <div className="p-4">
@@ -75,29 +61,38 @@ export default function NotificationsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {notifications.map((notif, idx) => (
-              <motion.div 
-                key={notif.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className={`flex gap-4 p-4 rounded-2xl border ${notif.read ? 'bg-card border-border/50' : 'bg-muted border-accent/30'} transition-colors cursor-pointer hover:bg-muted/80`}
-              >
-                <div className={`mt-1 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${notif.bg} ${notif.color}`}>
-                  <notif.icon className="w-5 h-5" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-start gap-2">
-                    <h4 className={`font-bold text-sm ${!notif.read && 'text-foreground'}`}>{notif.title}</h4>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{notif.time}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1 leading-snug">{notif.message}</p>
-                </div>
-                {!notif.read && (
-                  <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                )}
-              </motion.div>
-            ))}
+            <AnimatePresence>
+              {notifications.map((notif, idx) => {
+                const Icon = getIconForType(notif.type);
+                const timeAgo = formatDistanceToNow(new Date(notif.timestamp), { addSuffix: true });
+                
+                return (
+                  <motion.div 
+                    key={notif.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ delay: Math.min(idx * 0.05, 0.3) }}
+                    onClick={() => handleNotificationClick(notif)}
+                    className={`flex gap-4 p-4 rounded-2xl border ${notif.read ? 'bg-card border-border/50' : 'bg-muted border-accent/30'} transition-colors ${notif.targetUrl ? 'cursor-pointer hover:bg-muted/80' : ''}`}
+                  >
+                    <div className={`mt-1 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${notif.iconBg || 'bg-accent/10'} ${notif.iconColor || 'text-accent'}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <h4 className={`font-bold text-sm truncate ${!notif.read && 'text-foreground'}`}>{notif.title}</h4>
+                        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap">{timeAgo}</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1 leading-snug line-clamp-2">{notif.message}</p>
+                    </div>
+                    {!notif.read && (
+                      <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                    )}
+                  </motion.div>
+                );
+              })}
+            </AnimatePresence>
           </div>
         )}
       </div>

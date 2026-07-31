@@ -3,9 +3,11 @@
 import { useEffect } from "react";
 import { useStore } from "@/store/useStore";
 import { detectUserRegion } from "@/app/actions/geo";
+import { useNotificationEngine } from "@/hooks/useNotificationEngine";
 
 export default function GeoProvider({ children }: { children: React.ReactNode }) {
   const { isRegionOverridden, setRegionPreferences, language, countryCode, timezone } = useStore();
+  useNotificationEngine();
 
   useEffect(() => {
     async function initializeGeo() {
