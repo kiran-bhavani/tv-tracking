@@ -6,7 +6,7 @@ import { useStore } from '@/store/useStore';
 import { Calendar as CalendarIcon, Clock, Plus, Check } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getImageUrl } from '@/lib/utils';
+import { getImageUrl, getSyntheticEpisodeId } from '@/lib/utils';
 import { logActivity } from '@/lib/activity';
 import { fetchWatchlistScheduleAction } from '@/app/actions/tmdb';
 
