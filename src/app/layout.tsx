@@ -4,6 +4,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import BottomNav from "@/components/BottomNav";
 import OnboardingGuard from "@/components/OnboardingGuard";
 import OfflineBanner from "@/components/OfflineBanner";
+import GeoProvider from "@/components/GeoProvider";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -54,13 +55,15 @@ export default function RootLayout({
     <html lang="en" className={`h-full antialiased ${inter.className}`}>
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <AuthProvider>
-          <OfflineBanner />
-          <OnboardingGuard>
-            <main className="flex-1">
-              {children}
-            </main>
-            <BottomNav />
-          </OnboardingGuard>
+          <GeoProvider>
+            <OfflineBanner />
+            <OnboardingGuard>
+              <main className="flex-1">
+                {children}
+              </main>
+              <BottomNav />
+            </OnboardingGuard>
+          </GeoProvider>
         </AuthProvider>
       </body>
     </html>

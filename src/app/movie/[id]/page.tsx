@@ -158,7 +158,7 @@ export default async function MovieDetailsPage({ params }: { params: Promise<{ i
 
       {/* Where to Watch */}
       <div className="px-4">
-        <WatchProviders providersData={movie["watch/providers"]} countryCode="US" />
+        <WatchProviders providersData={movie["watch/providers"]} />
       </div>
 
       {/* Box Office & Crew Specs */}

@@ -90,7 +90,9 @@ export async function getDiscoverByGenre(
   page: number = 1, 
   minRating?: number, 
   sortBy: string = 'popularity.desc',
-  year?: number
+  year?: number,
+  region?: string,
+  watchProviderId?: string
 ) {
   let queryParams = `page=${page}&sort_by=${sortBy}&language=en-US`;
   if (genreId && genreId > 0) queryParams += `&with_genres=${genreId}`;
@@ -99,6 +101,9 @@ export async function getDiscoverByGenre(
     if (type === 'movie') queryParams += `&primary_release_year=${year}`;
     else queryParams += `&first_air_date_year=${year}`;
   }
+  if (region) queryParams += `&watch_region=${region}`;
+  if (watchProviderId) queryParams += `&with_watch_providers=${watchProviderId}`;
+  
   return fetchTMDB(`/discover/${type}?${queryParams}`);
 }
 
@@ -125,5 +130,13 @@ export async function getShowReviews(id: string | number) {
 
 export async function getMovieReviews(id: string | number) {
   return fetchTMDB(`/movie/${id}/reviews`);
+}
+
+export async function getLocalWatchProviders(type: 'tv' | 'movie', region: string) {
+  return fetchTMDB(`/watch/providers/${type}?language=en-US&watch_region=${region}`);
+}
+
+export async function getTrendingByRegion(type: 'tv' | 'movie', region: string) {
+  return fetchTMDB(`/discover/${type}?language=en-US&sort_by=popularity.desc&watch_region=${region}&page=1`);
 }
 

@@ -201,7 +201,7 @@ export default async function ShowDetailsPage({ params }: { params: Promise<{ id
       )}
 
       {/* Where to Watch */}
-      <WatchProviders providersData={show["watch/providers"]} countryCode="US" />
+      <WatchProviders providersData={show["watch/providers"]} />
 
       {/* Overview */}
       <OverviewText initialText={finalOverview} language={show.original_language} type="show" title={show.name} />

@@ -76,6 +76,12 @@ interface AppState {
     customLists?: CustomList[],
     movieReviews?: Record<number, MovieReview>
   ) => void;
+
+  countryCode: string;
+  language: string;
+  timezone: string;
+  isRegionOverridden: boolean;
+  setRegionPreferences: (countryCode: string, language: string, timezone: string, isOverridden?: boolean) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -90,7 +96,13 @@ export const useStore = create<AppState>()(
       showsActiveTab: 'watchlist',
       moviesSortMode: 'default',
       moviesActiveTab: 'watchlist',
+      countryCode: 'US',
+      language: 'en-US',
+      timezone: 'America/New_York',
+      isRegionOverridden: false,
 
+      setRegionPreferences: (countryCode, language, timezone, isOverridden = true) => 
+        set({ countryCode, language, timezone, isRegionOverridden: isOverridden }),
       setViewMode: (mode) => set({ viewMode: mode }),
       setShowsSortMode: (mode) => set({ showsSortMode: mode }),
       setShowsActiveTab: (tab) => set({ showsActiveTab: tab }),

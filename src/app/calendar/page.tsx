@@ -18,6 +18,7 @@ export default function ReleaseCalendarPage() {
   const watchlist = useStore((state) => state.watchlist);
   const watchedEpisodes = useStore((state) => state.watchedEpisodes);
   const toggleEpisodeWatched = useStore((state) => state.toggleEpisodeWatched);
+  const language = useStore((state) => state.language);
 
   const [scheduleItems, setScheduleItems] = useState<any[]>(() => {
     return cacheManager.get<any[]>(CALENDAR_CACHE_KEY) || [];
@@ -131,7 +132,7 @@ export default function ReleaseCalendarPage() {
                       </span>
                     </div>
                     <span className="text-[11px] text-muted-foreground mt-1 truncate">
-                      {item.episodeName || 'Upcoming Episode'} • {item.airDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {item.episodeName || 'Upcoming Episode'} • {item.airDate.toLocaleDateString(language || 'en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' })}
                     </span>
                   </div>
                 </div>

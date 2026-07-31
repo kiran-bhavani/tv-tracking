@@ -197,6 +197,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { user } = useAuth();
   const { isInstallable, promptInstall } = usePWAInstall();
+  const { countryCode, language, timezone, isRegionOverridden, setRegionPreferences } = useStore();
 
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const showToast = useCallback((message: string, type: 'success' | 'error') => setToast({ message, type }), []);
@@ -414,6 +415,63 @@ export default function SettingsPage() {
               onClick={promptInstall}
               rightSlot={<ExternalLink className="w-4 h-4 text-muted-foreground/50" />}
             />
+          </Card>
+        </div>
+
+        {/* ── Regional Preferences ───────────────────────────── */}
+        <div>
+          <SectionLabel label="Regional Preferences" />
+          <Card>
+            <div className="px-4 py-3 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">Watch Region</label>
+              <select 
+                className="w-full bg-muted border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-accent outline-none appearance-none"
+                value={countryCode}
+                onChange={(e) => {
+                  setRegionPreferences(e.target.value, language, timezone, true);
+                  window.location.reload();
+                }}
+              >
+                <option value="US">United States</option>
+                <option value="GB">United Kingdom</option>
+                <option value="CA">Canada</option>
+                <option value="AU">Australia</option>
+                <option value="IN">India</option>
+                <option value="DE">Germany</option>
+                <option value="FR">France</option>
+                <option value="JP">Japan</option>
+                <option value="BR">Brazil</option>
+                <option value="MX">Mexico</option>
+                <option value="ES">Spain</option>
+                <option value="IT">Italy</option>
+              </select>
+              <p className="text-[11px] text-muted-foreground mt-1">Updates "Where to Watch" providers</p>
+            </div>
+            
+            <div className="h-px bg-white/[0.05] w-full" />
+            
+            <div className="px-4 py-3 flex flex-col gap-2">
+              <label className="text-sm font-semibold text-foreground">Language</label>
+              <select 
+                className="w-full bg-muted border border-border rounded-xl px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-accent outline-none appearance-none"
+                value={language}
+                onChange={(e) => {
+                  setRegionPreferences(countryCode, e.target.value, timezone, isRegionOverridden);
+                  window.location.reload();
+                }}
+              >
+                <option value="en-US">English (US)</option>
+                <option value="en-GB">English (UK)</option>
+                <option value="es-ES">Español</option>
+                <option value="fr-FR">Français</option>
+                <option value="de-DE">Deutsch</option>
+                <option value="it-IT">Italiano</option>
+                <option value="pt-BR">Português (Brasil)</option>
+                <option value="hi-IN">Hindi</option>
+                <option value="ja-JP">日本語</option>
+              </select>
+              <p className="text-[11px] text-muted-foreground mt-1">Updates release date formats</p>
+            </div>
           </Card>
         </div>
 

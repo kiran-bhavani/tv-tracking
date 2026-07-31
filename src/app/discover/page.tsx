@@ -5,6 +5,8 @@ import { Search } from 'lucide-react';
 import ForYouRecommendations from '@/components/ForYouRecommendations';
 import InfiniteDiscoverRows from '@/components/InfiniteDiscoverRows';
 import TrendingTrailersCarousel from '@/components/TrendingTrailersCarousel';
+import RegionalWatchProviders from '@/components/RegionalWatchProviders';
+import RegionalTrending from '@/components/RegionalTrending';
 
 export const revalidate = 86400; // Revalidate Discover page once every 24 hours
 
@@ -46,26 +48,7 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       </div>
 
       {/* Streaming Service Provider Chips */}
-      <div className="px-4 mb-4">
-        <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Watch Providers</p>
-        <div className="flex gap-2 overflow-x-auto hide-scrollbar pb-1">
-          {[
-            { name: 'Netflix', query: 'netflix' },
-            { name: 'HBO Max', query: 'max' },
-            { name: 'Disney+', query: 'disney' },
-            { name: 'Apple TV+', query: 'apple' },
-            { name: 'Prime Video', query: 'amazon' }
-          ].map(p => (
-            <Link
-              key={p.name}
-              href={`/search?q=${p.query}&type=${isMovie ? 'movie' : 'tv'}`}
-              className="px-3.5 py-1.5 bg-card hover:bg-accent/15 border border-border hover:border-accent/30 text-xs font-bold text-foreground rounded-full flex-shrink-0 transition-colors"
-            >
-              {p.name}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <RegionalWatchProviders isMovie={isMovie} />
 
       {/* Trending Trailers Video Carousel */}
       <TrendingTrailersCarousel />
@@ -74,10 +57,13 @@ export default async function DiscoverPage({ searchParams }: { searchParams: Pro
       <ForYouRecommendations type={isMovie ? 'movie' : 'tv'} />
 
       <div className="flex flex-col gap-8 pb-8">
-        {/* Trending Section */}
+        {/* Regional Trending Section */}
+        <RegionalTrending isMovie={isMovie} />
+
+        {/* Global Trending Section */}
         <section>
           <div className="px-4 mb-3 flex justify-between items-end">
-            <h2 className="text-xl font-bold text-foreground">Trending {isMovie ? 'Movies' : 'Shows'}</h2>
+            <h2 className="text-xl font-bold text-foreground">Global Trending {isMovie ? 'Movies' : 'Shows'}</h2>
             <Link href={`/search?type=${isMovie ? 'movie' : 'tv'}`} className="text-xs text-accent font-semibold hover:underline">See all</Link>
           </div>
           <div className="flex overflow-x-auto gap-4 px-4 snap-x snap-mandatory hide-scrollbar">

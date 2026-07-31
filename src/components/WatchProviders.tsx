@@ -4,17 +4,28 @@ import Image from 'next/image';
 import { getImageUrl } from '@/lib/utils';
 import { ExternalLink } from 'lucide-react';
 
+import { useStore } from '@/store/useStore';
+
 interface WatchProvidersProps {
   providersData?: any;
-  countryCode?: string;
+  countryCode?: string; // Kept for backwards compatibility or forced overrides
 }
 
-export default function WatchProviders({ providersData, countryCode = 'US' }: WatchProvidersProps) {
+export default function WatchProviders({ providersData, countryCode: overrideCountryCode }: WatchProvidersProps) {
+  const storeCountryCode = useStore(state => state.countryCode);
+  const countryCode = overrideCountryCode || storeCountryCode || 'US';
+
   if (!providersData || !providersData.results) return null;
 
   const countryData = providersData.results[countryCode];
   
-  if (!countryData) return null;
+  if (!countryData) {
+    return (
+      <div className="bg-card border border-white/5 rounded-2xl p-4 shadow-lg text-center text-sm text-muted-foreground mt-4">
+        Not currently available to stream in <span className="font-bold text-foreground">{countryCode}</span>.
+      </div>
+    );
+  }
 
   const { flatrate, rent, buy, link } = countryData;
 
