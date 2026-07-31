@@ -1,6 +1,6 @@
 "use server";
 
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import { fetchWikipediaSummary } from '@/lib/wikipedia';
 
 // 1. Try Wikipedia first (faster, free)
@@ -19,8 +19,7 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
     return { source: 'error', overview: 'Missing API Key. Please configure GEMINI_API_KEY in Vercel settings.' };
   }
 
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   
   let prompt = "";
   if (type === 'episode' && season !== undefined && episode !== undefined) {
@@ -31,8 +30,11 @@ export async function generateOverviewAction(type: 'show' | 'movie' | 'episode',
   }
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim() || "";
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    const text = response.text?.trim() || "";
     if (text) {
       return { source: 'ai', overview: text };
     }
@@ -48,15 +50,16 @@ export async function generateTriviaAction(title: string, type: 'show' | 'movie'
     console.warn("GEMINI_API_KEY is not defined in environment variables.");
     return ["Missing API Key. Please configure GEMINI_API_KEY in Vercel settings.", "Missing API Key."];
   }
-
-  const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash-latest' });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const mediaType = type === 'movie' ? 'movie' : 'TV show';
   const prompt = `Give me 2 fascinating, real, verified behind-the-scenes trivia facts about the ${mediaType} "${title}". Return ONLY a JSON array of 2 strings like: ["Fact 1", "Fact 2"]. Do not include markdown codeblocks or extra text.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text().trim() || "";
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    const text = response.text?.trim() || "";
     const cleanText = text.replace(/```json/g, '').replace(/```/g, '').trim();
     const facts = JSON.parse(cleanText);
     if (Array.isArray(facts) && facts.length > 0) {
