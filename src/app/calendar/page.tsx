@@ -21,7 +21,11 @@ export default function ReleaseCalendarPage() {
   const language = useStore((state) => state.language);
 
   const [scheduleItems, setScheduleItems] = useState<any[]>(() => {
-    return cacheManager.get<any[]>(CALENDAR_CACHE_KEY) || [];
+    const cached = cacheManager.get<any[]>(CALENDAR_CACHE_KEY) || [];
+    return cached.map(item => ({
+      ...item,
+      airDate: new Date(item.airDate)
+    }));
   });
   const [loading, setLoading] = useState<boolean>(() => scheduleItems.length === 0);
 
