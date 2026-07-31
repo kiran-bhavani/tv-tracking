@@ -48,6 +48,8 @@ interface AppState {
   setShowsActiveTab: (tab: 'watchlist' | 'upcoming') => void;
   moviesSortMode: 'default' | 'alpha' | 'unwatched_first';
   setMoviesSortMode: (mode: 'default' | 'alpha' | 'unwatched_first') => void;
+  moviesActiveTab: 'watchlist' | 'watched';
+  setMoviesActiveTab: (tab: 'watchlist' | 'watched') => void;
   
   addToWatchlist: (show: WatchlistShow) => void;
   removeFromWatchlist: (showId: number) => void;
@@ -87,11 +89,13 @@ export const useStore = create<AppState>()(
       showsSortMode: 'default',
       showsActiveTab: 'watchlist',
       moviesSortMode: 'default',
+      moviesActiveTab: 'watchlist',
 
       setViewMode: (mode) => set({ viewMode: mode }),
       setShowsSortMode: (mode) => set({ showsSortMode: mode }),
       setShowsActiveTab: (tab) => set({ showsActiveTab: tab }),
       setMoviesSortMode: (mode) => set({ moviesSortMode: mode }),
+      setMoviesActiveTab: (tab) => set({ moviesActiveTab: tab }),
 
       addToWatchlist: (show) => set((state) => ({
         watchlist: { ...state.watchlist, [show.id]: show },

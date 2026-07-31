@@ -17,6 +17,8 @@ type SortMode = 'default' | 'alpha' | 'unwatched_first';
 export default function MoviesWatchlistPage() {
   const [mounted, setMounted] = useState(() => typeof window !== 'undefined');
   const [showRoulette, setShowRoulette] = useState(false);
+  const activeTab = useStore((state) => state.moviesActiveTab || 'watchlist');
+  const setActiveTab = useStore((state) => state.setMoviesActiveTab);
   const sortMode = useStore((state) => state.moviesSortMode || 'default');
   const setMoviesSortMode = useStore((state) => state.setMoviesSortMode);
   const viewMode = useStore((state) => state.viewMode || 'card');
@@ -64,53 +66,94 @@ export default function MoviesWatchlistPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32">
       {/* Top Header */}
-      <div className="sticky top-0 z-40 bg-background/90 backdrop-blur-md pt-safe shadow-sm">
-        <div className="px-4 py-2 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-foreground">Movies</h1>
+      <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl pt-safe shadow-sm border-b border-white/5">
+        <div className="px-5 py-3.5 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            {/* View Mode Toggle */}
-            <div className="bg-muted p-1 rounded-full border border-border flex gap-1">
+            <h1 className="text-2xl font-black tracking-tight text-white">Movies</h1>
+            {mounted && (
+              <span className="text-[10px] font-black uppercase tracking-wider bg-accent/15 text-accent px-2 py-0.5 rounded-full border border-accent/30">
+                {activeMovies.length} Active
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* View Mode Toggle (Card vs Grid) */}
+            <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1">
               <button
                 onClick={() => setViewMode('card')}
-                className={`p-1.5 rounded-full transition-colors ${viewMode === 'card' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`p-1.5 rounded-full transition-all ${viewMode === 'card' ? 'bg-accent text-accent-foreground shadow-md' : 'text-zinc-400 hover:text-white'}`}
                 title="Detailed Cards View"
               >
                 <List className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-full transition-colors ${viewMode === 'grid' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+                className={`p-1.5 rounded-full transition-all ${viewMode === 'grid' ? 'bg-accent text-accent-foreground shadow-md' : 'text-zinc-400 hover:text-white'}`}
                 title="Compact Poster Grid View"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
             </div>
 
+            {/* Sort Toggle */}
             <button
               onClick={cycleSort}
-              className="flex items-center gap-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-border"
+              className="flex items-center gap-1.5 bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold px-3 py-1.5 rounded-full transition-colors border border-white/10"
               title="Change sort order"
             >
               <ArrowUpDown className="w-3.5 h-3.5" />
               {sortLabels[sortMode]}
             </button>
+
+            {/* Roulette Button */}
             <button 
               onClick={() => setShowRoulette(true)}
-              className="flex items-center gap-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs font-bold px-3 py-1.5 rounded-full transition-colors"
+              className="flex items-center gap-1.5 bg-accent/15 hover:bg-accent/25 text-accent border border-accent/30 text-xs font-bold px-3 py-1.5 rounded-full transition-all active:scale-95 shadow-sm"
+              title="Spin Movie Roulette"
             >
-              <Dices className="w-4 h-4" />
+              <Dices className="w-3.5 h-3.5" />
               <span>Roulette</span>
             </button>
           </div>
         </div>
         
-        <div className="px-4 flex gap-6 border-b border-border">
-          <button className="pb-2 text-xs font-bold uppercase relative text-foreground">
-            Watchlist
-            <motion.div layoutId="movie-tab-indicator" className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-t-full" />
-          </button>
+        {/* iOS Segmented Pill Control for Watchlist vs Watched */}
+        <div className="px-4 pb-3 flex justify-center">
+          <div className="bg-white/5 p-1 rounded-full border border-white/10 flex gap-1 w-full max-w-xs relative">
+            <button
+              onClick={() => setActiveTab('watchlist')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-black tracking-wide transition-colors relative z-10 text-center ${
+                activeTab === 'watchlist' ? 'text-accent-foreground' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Watchlist
+              {activeTab === 'watchlist' && (
+                <motion.div
+                  layoutId="movies-tab-pill"
+                  className="absolute inset-0 bg-accent rounded-full shadow-md -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('watched')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-black tracking-wide transition-colors relative z-10 text-center ${
+                activeTab === 'watched' ? 'text-accent-foreground' : 'text-zinc-400 hover:text-white'
+              }`}
+            >
+              Watched ({finishedMovies.length})
+              {activeTab === 'watched' && (
+                <motion.div
+                  layoutId="movies-tab-pill"
+                  className="absolute inset-0 bg-accent rounded-full shadow-md -z-10"
+                  transition={{ type: "spring", stiffness: 400, damping: 28 }}
+                />
+              )}
+            </button>
+          </div>
         </div>
       </div>
       
@@ -119,153 +162,116 @@ export default function MoviesWatchlistPage() {
           <div className="text-center text-muted-foreground py-10">Loading...</div>
         ) : (
           <>
-            {viewMode === 'grid' ? (
-              /* Poster Grid View */
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                {activeMovies.map(show => (
-                  <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-md">
-                    <Link href={`/movie/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
-                      <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          markMovieWatched(show.id);
-                        }}
-                        title="Mark movie as watched"
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-emerald-500 text-black flex items-center justify-center shadow-lg shadow-emerald-500/30 opacity-95 hover:scale-110 active:scale-95 transition-all"
-                      >
-                        <Plus className="w-4.5 h-4.5 stroke-[3]" />
-                      </button>
-                    </Link>
-
-                    <div className="p-2 flex flex-col justify-between flex-1">
-                      <Link href={`/movie/${show.id}`} className="font-bold text-foreground text-xs leading-tight line-clamp-1 group-hover:text-accent transition-colors">
-                        {show.name}
-                      </Link>
+            {(() => {
+              const currentList = activeTab === 'watchlist' ? activeMovies : finishedMovies;
+              if (currentList.length === 0) {
+                return (
+                  <div className="ios-glass rounded-3xl p-8 my-6 text-center flex flex-col items-center gap-3 border border-white/10 shadow-2xl">
+                    <div className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-1 shadow-lg shadow-accent/10">
+                      <Film className="w-8 h-8" />
                     </div>
+                    <h3 className="text-xl font-black text-white">
+                      {activeTab === 'watchlist' ? 'No Active Movies!' : 'No Watched Movies Yet!'}
+                    </h3>
+                    <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
+                      {activeTab === 'watchlist'
+                        ? 'Start building your movie watchlist to keep track of films you want to watch.'
+                        : 'Mark movies as watched to save them in your completed history.'}
+                    </p>
+                    <Link href="/discover?type=movie" className="mt-3 px-6 py-3 bg-accent text-accent-foreground rounded-full font-black text-sm transition-all shadow-lg shadow-accent/20 hover:bg-accent/90 active:scale-95">
+                      + Discover Movies
+                    </Link>
                   </div>
-                ))}
-              </div>
-            ) : (
-              /* Detailed Cards View */
-              <AnimatePresence>
-                {activeMovies.map(show => (
-                <motion.div
-                  key={show.id}
-                  layout
-                  initial={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9, x: -100 }}
-                  transition={{ duration: 0.3 }}
-                  className="bg-card/60 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-lg border border-white/5 group"
-                >
-                  <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-zinc-900">
-                    <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
-                  </Link>
-                  
-                  <div className="flex-1 flex flex-col">
-                    <div className="p-3.5 flex gap-2 items-center">
-                      <Link href={`/movie/${show.id}`} className="flex-1 min-w-0">
-                        <h3 className="font-bold text-foreground text-base truncate group-hover:text-accent transition-colors">{show.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Movie</p>
-                        <p className="text-xs text-emerald-400 font-semibold truncate mt-1">Ready to watch</p>
+                );
+              }
+
+              return viewMode === 'grid' ? (
+                /* Poster Grid View */
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+                  {currentList.map(show => (
+                    <div key={show.id} className="group relative flex flex-col rounded-xl overflow-hidden bg-card border border-border shadow-md">
+                      <Link href={`/movie/${show.id}`} className="aspect-[2/3] relative w-full bg-zinc-900 overflow-hidden">
+                        <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                        
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            markMovieWatched(show.id);
+                          }}
+                          title={isMovieWatched(show.id) ? "Mark as unwatched" : "Mark movie as watched"}
+                          className={`absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-all ${
+                            isMovieWatched(show.id)
+                              ? 'bg-accent/20 border border-accent/40 text-accent hover:bg-accent hover:text-black'
+                              : 'bg-emerald-500 text-black shadow-emerald-500/30 opacity-95 hover:scale-110 active:scale-95'
+                          }`}
+                        >
+                          {isMovieWatched(show.id) ? <Check className="w-4 h-4" /> : <Plus className="w-4.5 h-4.5 stroke-[3]" />}
+                        </button>
                       </Link>
 
-                      <div className="flex flex-col gap-2 flex-shrink-0">
-                        {/* Mark Watched */}
-                        <button 
-                          onClick={() => markMovieWatched(show.id)}
-                          title="Mark movie as watched"
-                          className="w-10 h-10 bg-muted rounded-full flex justify-center items-center border border-border text-foreground hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:text-emerald-400 transition-all active:scale-95 shadow-sm"
-                        >
-                          <Plus className="w-5 h-5 stroke-[2.5]" />
-                        </button>
-                        {/* Remove from watchlist */}
-                        <button 
-                          onClick={() => removeFromWatchlist(show.id)}
-                          title="Remove from watchlist"
-                          className="w-10 h-10 bg-white/5 rounded-full flex justify-center items-center border border-white/10 text-white/50 hover:bg-red-500/80 hover:text-white hover:border-red-500 transition-all"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
+                      <div className="p-2 flex flex-col justify-between flex-1">
+                        <Link href={`/movie/${show.id}`} className="font-bold text-foreground text-xs leading-tight line-clamp-1 group-hover:text-accent transition-colors">
+                          {show.name}
+                        </Link>
                       </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          )}
-
-            {activeMovies.length === 0 && finishedMovies.length === 0 && (
-              <div className="ios-glass rounded-3xl p-8 my-6 text-center flex flex-col items-center gap-3 border border-white/10 shadow-2xl">
-                <div className="w-16 h-16 rounded-full bg-accent/15 border border-accent/30 flex items-center justify-center text-accent mb-1 shadow-lg shadow-accent/10">
-                  <Film className="w-8 h-8" />
+                  ))}
                 </div>
-                <h3 className="text-xl font-black text-white">
-                  No Movies Saved Yet!
-                </h3>
-                <p className="text-sm text-zinc-400 max-w-xs leading-relaxed">
-                  Start building your movie watchlist to keep track of films you want to watch.
-                </p>
-                <Link href="/discover?type=movie" className="mt-3 px-6 py-3 bg-accent text-accent-foreground rounded-full font-black text-sm transition-all shadow-lg shadow-accent/20 hover:bg-accent/90 active:scale-95">
-                  + Discover Movies
-                </Link>
-              </div>
-            )}
-
-            {finishedMovies.length > 0 && (
-              <div className="mt-8">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="h-px bg-border flex-1" />
-                  <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Watched</h2>
-                  <div className="h-px bg-border flex-1" />
-                </div>
-                <div className="flex flex-col gap-4">
-                  {finishedMovies.map(show => (
+              ) : (
+                /* Detailed Cards View */
+                <AnimatePresence>
+                  {currentList.map(show => (
                     <motion.div
                       key={show.id}
                       layout
-                      className="bg-card/50 rounded-xl overflow-hidden flex border border-border group opacity-70 hover:opacity-100 transition-opacity"
+                      initial={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9, x: -100 }}
+                      transition={{ duration: 0.3 }}
+                      className="bg-card/60 backdrop-blur-md rounded-2xl overflow-hidden flex shadow-lg border border-white/5 group"
                     >
-                      <Link href={`/movie/${show.id}`} className="w-16 relative flex-shrink-0 bg-gray-900 grayscale group-hover:grayscale-0 transition-all duration-500">
-                        <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover" />
+                      <Link href={`/movie/${show.id}`} className="w-24 relative flex-shrink-0 bg-zinc-900">
+                        <Image src={getImageUrl(show.poster_path)} alt={show.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" />
                       </Link>
                       
-                      <div className="flex-1 flex flex-col justify-center p-3">
-                        <div className="flex justify-between items-center gap-2">
+                      <div className="flex-1 flex flex-col">
+                        <div className="p-3.5 flex gap-2 items-center">
                           <Link href={`/movie/${show.id}`} className="flex-1 min-w-0">
-                            <h3 className="font-bold text-foreground text-sm leading-tight truncate">{show.name}</h3>
-                            <p className="text-[10px] text-accent font-semibold flex items-center gap-1 mt-1">
-                              <Check className="w-3 h-3" /> Watched
+                            <h3 className="font-bold text-foreground text-base truncate group-hover:text-accent transition-colors">{show.name}</h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">Movie</p>
+                            <p className={`text-xs font-semibold truncate mt-1 ${isMovieWatched(show.id) ? 'text-accent' : 'text-emerald-400'}`}>
+                              {isMovieWatched(show.id) ? '✓ Completed' : 'Ready to watch'}
                             </p>
                           </Link>
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            {/* Unmark watched */}
+
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Mark Watched Toggle */}
                             <button 
                               onClick={() => markMovieWatched(show.id)}
-                              title="Mark as unwatched"
-                              className="w-8 h-8 bg-accent/15 rounded-full flex justify-center items-center border border-accent/30 text-accent hover:bg-muted hover:text-muted-foreground hover:border-border transition-all"
+                              title={isMovieWatched(show.id) ? "Mark as unwatched" : "Mark movie as watched"}
+                              className={`w-10 h-10 rounded-full flex justify-center items-center border transition-all active:scale-95 shadow-sm ${
+                                isMovieWatched(show.id)
+                                  ? 'bg-accent/15 border-accent/30 text-accent hover:bg-white/10 hover:text-white'
+                                  : 'bg-muted border-border text-foreground hover:bg-emerald-500/20 hover:border-emerald-500/50 hover:text-emerald-400'
+                              }`}
                             >
-                              <Check className="w-4 h-4" />
+                              {isMovieWatched(show.id) ? <Check className="w-5 h-5 stroke-[2.5]" /> : <Plus className="w-5 h-5 stroke-[2.5]" />}
                             </button>
-                            {/* Remove */}
+                            {/* Remove from watchlist */}
                             <button 
                               onClick={() => removeFromWatchlist(show.id)}
                               title="Remove from watchlist"
-                              className="w-8 h-8 bg-white/5 rounded-full flex justify-center items-center border border-white/10 text-white/50 hover:bg-red-500/80 hover:text-white hover:border-red-500 transition-all ml-1"
+                              className="w-10 h-10 bg-white/5 rounded-full flex justify-center items-center border border-white/10 text-white/50 hover:bg-red-500/80 hover:text-white hover:border-red-500 transition-all"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
                       </div>
                     </motion.div>
                   ))}
-                </div>
-              </div>
-            )}
-
+                </AnimatePresence>
+              );
             <ForYouRecommendations type="movie" />
           </>
         )}
